@@ -1,0 +1,15 @@
+[submodule "modules/json"]
+	path = modules/json
+	url = https://github.com/nlohmann/json.git
+[submodule "modules/chowdsp_utils"]
+	path = modules/chowdsp_utils
+	url = https://github.com/Chowdhury-DSP/chowdsp_utils
+[submodule "modules/libsamplerate"]
+	path = modules/libsamplerate
+	url = https://github.com/libsndfile/libsamplerate
+[submodule "modules/JUCE"]
+	path = modules/JUCE
+	url = https://github.com/juce-framework/JUCE.git
+[submodule "modules/RTNeural"]
+	path = modules/RTNeural
+	url = https://github.com/jatinchowdhury18/RTNeural.git
