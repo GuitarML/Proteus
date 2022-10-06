@@ -165,19 +165,19 @@ void ProteusAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer
 
     // Overdrive Pedal ================================================================== 
     if (fw_state == 1) {
-        auto block44k = resampler.processIn(block);
+        
 
         if (conditioned == false) {
             // Apply ramped changes for gain smoothing
             if (driveValue == previousDriveValue)
             {
-                buffer.applyGain(driveValue*20.0);
+                buffer.applyGain(driveValue*10.0);
             }
              else {
-                buffer.applyGainRamp(0, (int) buffer.getNumSamples(), previousDriveValue * 20.0, driveValue * 20.0);
+                buffer.applyGainRamp(0, (int) buffer.getNumSamples(), previousDriveValue * 10.0, driveValue * 10.0);
                 previousDriveValue = driveValue;
             }
-
+            auto block44k = resampler.processIn(block);
             for (int ch = 0; ch < buffer.getNumChannels(); ++ch)
             {
                 // Apply LSTM model
@@ -188,11 +188,12 @@ void ProteusAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer
                     LSTM2.process(block44k.getChannelPointer(1), block44k.getChannelPointer(1), (int)block44k.getNumSamples());
                 }
             }
+            resampler.processOut(block44k, block);
         } else {
-            buffer.applyGain(10.0); // Apply default boost to help sound
+            buffer.applyGain(5.0); // Apply default boost to help sound
             // resample to target sample rate
             
-
+            auto block44k = resampler.processIn(block);
             for (int ch = 0; ch < buffer.getNumChannels(); ++ch)
             {
                 // Apply LSTM model
@@ -203,8 +204,9 @@ void ProteusAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer
                     LSTM2.process(block44k.getChannelPointer(1), driveValue, block44k.getChannelPointer(1), (int)block44k.getNumSamples());
                 }
             }
+            resampler.processOut(block44k, block);
         }
-        resampler.processOut(block44k, block);
+
 
 
         // Master Volume 
