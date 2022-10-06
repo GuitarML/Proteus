@@ -12,7 +12,7 @@
 #include "PluginEditor.h"
 
 //==============================================================================
-SmartPedalAudioProcessorEditor::SmartPedalAudioProcessorEditor (SmartPedalAudioProcessor& p)
+ProteusAudioProcessorEditor::ProteusAudioProcessorEditor (ProteusAudioProcessor& p)
     : AudioProcessorEditor (&p), processor (p)
 {
     // Make sure that before the constructor has finished, you've set the
@@ -97,12 +97,12 @@ SmartPedalAudioProcessorEditor::SmartPedalAudioProcessorEditor (SmartPedalAudioP
     loadFromFolder();
 }
 
-SmartPedalAudioProcessorEditor::~SmartPedalAudioProcessorEditor()
+ProteusAudioProcessorEditor::~ProteusAudioProcessorEditor()
 {
 }
 
 //==============================================================================
-void SmartPedalAudioProcessorEditor::paint (Graphics& g)
+void ProteusAudioProcessorEditor::paint (Graphics& g)
 {
     // Workaround for graphics on Windows builds (clipping code doesn't work correctly on Windows)
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
@@ -126,7 +126,7 @@ void SmartPedalAudioProcessorEditor::paint (Graphics& g)
 #endif
 }
 
-void SmartPedalAudioProcessorEditor::resized()
+void ProteusAudioProcessorEditor::resized()
 {
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
@@ -144,7 +144,7 @@ void SmartPedalAudioProcessorEditor::resized()
 }
 
 
-void SmartPedalAudioProcessorEditor::loadButtonClicked()
+void ProteusAudioProcessorEditor::loadButtonClicked()
 {
     myChooser = std::make_unique<FileChooser> ("Select a folder to load models from",
                                                processor.folder,
@@ -190,7 +190,7 @@ void SmartPedalAudioProcessorEditor::loadButtonClicked()
     
 }
 
-void SmartPedalAudioProcessorEditor::loadFromFolder()
+void ProteusAudioProcessorEditor::loadFromFolder()
 {
 
     Array<File> files;
@@ -211,7 +211,7 @@ void SmartPedalAudioProcessorEditor::loadFromFolder()
 }
 
 
-void SmartPedalAudioProcessorEditor::buttonClicked(juce::Button* button)
+void ProteusAudioProcessorEditor::buttonClicked(juce::Button* button)
 {
     if (button == &odFootSw) {
         odFootSwClicked();
@@ -220,7 +220,7 @@ void SmartPedalAudioProcessorEditor::buttonClicked(juce::Button* button)
     }
 }
 
-void SmartPedalAudioProcessorEditor::odFootSwClicked() {
+void ProteusAudioProcessorEditor::odFootSwClicked() {
     if (processor.fw_state == 0)
         processor.fw_state = 1;
     else
@@ -228,12 +228,12 @@ void SmartPedalAudioProcessorEditor::odFootSwClicked() {
     resetImages();
 }
 
-void SmartPedalAudioProcessorEditor::sliderValueChanged(Slider* slider)
+void ProteusAudioProcessorEditor::sliderValueChanged(Slider* slider)
 {
 
 }
 
-void SmartPedalAudioProcessorEditor::modelSelectChanged()
+void ProteusAudioProcessorEditor::modelSelectChanged()
 {
     const int selectedFileIndex = modelSelect.getSelectedItemIndex();
     if (selectedFileIndex >= 0 && selectedFileIndex < processor.jsonFiles.size()) {
@@ -244,7 +244,7 @@ void SmartPedalAudioProcessorEditor::modelSelectChanged()
 }
 
 
-void SmartPedalAudioProcessorEditor::resetImages()
+void ProteusAudioProcessorEditor::resetImages()
 {
     repaint();
     if (processor.fw_state == 0) {

@@ -17,13 +17,13 @@
 //==============================================================================
 /**
 */
-class SmartPedalAudioProcessorEditor  : public AudioProcessorEditor,
+class ProteusAudioProcessorEditor  : public AudioProcessorEditor,
                                        private Button::Listener,
                                        private Slider::Listener                  
 {
 public:
-    SmartPedalAudioProcessorEditor (SmartPedalAudioProcessor&);
-    ~SmartPedalAudioProcessorEditor();
+    ProteusAudioProcessorEditor (ProteusAudioProcessor&);
+    ~ProteusAudioProcessorEditor();
 
     //==============================================================================
     void paint (Graphics&) override;
@@ -36,7 +36,7 @@ public:
 private:
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
-    SmartPedalAudioProcessor& processor;
+    ProteusAudioProcessor& processor;
 
 
     TextButton loadButton;
@@ -78,5 +78,5 @@ public:
     std::unique_ptr <AudioProcessorValueTreeState::SliderAttachment> driveSliderAttach;
     std::unique_ptr <AudioProcessorValueTreeState::SliderAttachment> masterSliderAttach;
  
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SmartPedalAudioProcessorEditor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ProteusAudioProcessorEditor)
 };

@@ -12,7 +12,7 @@
 #include "PluginEditor.h"
 
 //==============================================================================
-SmartPedalAudioProcessor::SmartPedalAudioProcessor()
+ProteusAudioProcessor::ProteusAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
     : AudioProcessor(BusesProperties()
 #if ! JucePlugin_IsMidiEffect
@@ -22,7 +22,7 @@ SmartPedalAudioProcessor::SmartPedalAudioProcessor()
         .withOutput("Output", AudioChannelSet::stereo(), true)
 #endif
     ),
-    waveNet(1, 1, 1, 1, "linear", { 1 }),
+
     treeState(*this, nullptr, "PARAMETER", { std::make_unique<AudioParameterFloat>(GAIN_ID, GAIN_NAME, NormalisableRange<float>(0.0f, 1.0f, 0.01f), 0.5f),
                         std::make_unique<AudioParameterFloat>(MASTER_ID, MASTER_NAME, NormalisableRange<float>(0.0f, 1.0f, 0.01f), 0.5) })
 
@@ -33,17 +33,17 @@ SmartPedalAudioProcessor::SmartPedalAudioProcessor()
     masterParam = treeState.getRawParameterValue (MASTER_ID);
 }
 
-SmartPedalAudioProcessor::~SmartPedalAudioProcessor()
+ProteusAudioProcessor::~ProteusAudioProcessor()
 {
 }
 
 //==============================================================================
-const String SmartPedalAudioProcessor::getName() const
+const String ProteusAudioProcessor::getName() const
 {
     return JucePlugin_Name;
 }
 
-bool SmartPedalAudioProcessor::acceptsMidi() const
+bool ProteusAudioProcessor::acceptsMidi() const
 {
    #if JucePlugin_WantsMidiInput
     return true;
@@ -52,7 +52,7 @@ bool SmartPedalAudioProcessor::acceptsMidi() const
    #endif
 }
 
-bool SmartPedalAudioProcessor::producesMidi() const
+bool ProteusAudioProcessor::producesMidi() const
 {
    #if JucePlugin_ProducesMidiOutput
     return true;
@@ -61,7 +61,7 @@ bool SmartPedalAudioProcessor::producesMidi() const
    #endif
 }
 
-bool SmartPedalAudioProcessor::isMidiEffect() const
+bool ProteusAudioProcessor::isMidiEffect() const
 {
    #if JucePlugin_IsMidiEffect
     return true;
@@ -70,37 +70,37 @@ bool SmartPedalAudioProcessor::isMidiEffect() const
    #endif
 }
 
-double SmartPedalAudioProcessor::getTailLengthSeconds() const
+double ProteusAudioProcessor::getTailLengthSeconds() const
 {
     return 0.0;
 }
 
-int SmartPedalAudioProcessor::getNumPrograms()
+int ProteusAudioProcessor::getNumPrograms()
 {
     return 1;   // NB: some hosts don't cope very well if you tell them there are 0 programs,
                 // so this should be at least 1, even if you're not really implementing programs.
 }
 
-int SmartPedalAudioProcessor::getCurrentProgram()
+int ProteusAudioProcessor::getCurrentProgram()
 {
     return 0;
 }
 
-void SmartPedalAudioProcessor::setCurrentProgram (int index)
+void ProteusAudioProcessor::setCurrentProgram (int index)
 {
 }
 
-const String SmartPedalAudioProcessor::getProgramName (int index)
+const String ProteusAudioProcessor::getProgramName (int index)
 {
     return {};
 }
 
-void SmartPedalAudioProcessor::changeProgramName (int index, const String& newName)
+void ProteusAudioProcessor::changeProgramName (int index, const String& newName)
 {
 }
 
 //==============================================================================
-void SmartPedalAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
+void ProteusAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
@@ -119,14 +119,14 @@ void SmartPedalAudioProcessor::prepareToPlay (double sampleRate, int samplesPerB
 
 }
 
-void SmartPedalAudioProcessor::releaseResources()
+void ProteusAudioProcessor::releaseResources()
 {
     // When playback stops, you can use this as an opportunity to free up any
     // spare memory, etc.
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
-bool SmartPedalAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
+bool ProteusAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
 {
   #if JucePlugin_IsMidiEffect
     ignoreUnused (layouts);
@@ -150,7 +150,7 @@ bool SmartPedalAudioProcessor::isBusesLayoutSupported (const BusesLayout& layout
 #endif
 
 
-void SmartPedalAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer& midiMessages)
+void ProteusAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer& midiMessages)
 {
     ScopedNoDenormals noDenormals;
 
@@ -197,10 +197,10 @@ void SmartPedalAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuf
             {
                 // Apply LSTM model
                 if (ch == 0) {
-                    LSTM.process(block44k.getChannelPointer(0), paramValue, block44k.getChannelPointer(0), (int)block44k.getNumSamples());
+                    LSTM.process(block44k.getChannelPointer(0), driveValue, block44k.getChannelPointer(0), (int)block44k.getNumSamples());
                 }
                 else if (ch == 1) {
-                    LSTM2.process(block44k.getChannelPointer(1), paramValue, block44k.getChannelPointer(1), (int)block44k.getNumSamples());
+                    LSTM2.process(block44k.getChannelPointer(1), driveValue, block44k.getChannelPointer(1), (int)block44k.getNumSamples());
                 }
             }
         }
@@ -220,18 +220,18 @@ void SmartPedalAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuf
 }
 
 //==============================================================================
-bool SmartPedalAudioProcessor::hasEditor() const
+bool ProteusAudioProcessor::hasEditor() const
 {
     return true; // (change this to false if you choose to not supply an editor)
 }
 
-AudioProcessorEditor* SmartPedalAudioProcessor::createEditor()
+AudioProcessorEditor* ProteusAudioProcessor::createEditor()
 {
-    return new SmartPedalAudioProcessorEditor (*this);
+    return new ProteusAudioProcessorEditor (*this);
 }
 
 //==============================================================================
-void SmartPedalAudioProcessor::getStateInformation (MemoryBlock& destData)
+void ProteusAudioProcessor::getStateInformation (MemoryBlock& destData)
 {
     // You should use this method to store your parameters in the memory block.
     // You could do that either as raw data, or use the XML or ValueTree classes
@@ -247,7 +247,7 @@ void SmartPedalAudioProcessor::getStateInformation (MemoryBlock& destData)
 
 }
 
-void SmartPedalAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
+void ProteusAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
@@ -264,9 +264,9 @@ void SmartPedalAudioProcessor::setStateInformation (const void* data, int sizeIn
             current_model_index = xmlState->getIntAttribute("current_model_index");
             File temp = xmlState->getStringAttribute("folder");
             folder = temp;
-            if (auto* editor = dynamic_cast<SmartPedalAudioProcessorEditor*> (getActiveEditor()))
+            if (auto* editor = dynamic_cast<ProteusAudioProcessorEditor*> (getActiveEditor()))
                 editor->resetImages();
-            if (auto* editor = dynamic_cast<SmartPedalAudioProcessorEditor*> (getActiveEditor()))
+            if (auto* editor = dynamic_cast<ProteusAudioProcessorEditor*> (getActiveEditor()))
                 editor->loadFromFolder();
 
         }
@@ -274,7 +274,7 @@ void SmartPedalAudioProcessor::setStateInformation (const void* data, int sizeIn
 }
 
 
-void SmartPedalAudioProcessor::loadConfig(File configFile)
+void ProteusAudioProcessor::loadConfig(File configFile)
 {
     this->suspendProcessing(true);
     String path = configFile.getFullPathName();
@@ -300,5 +300,5 @@ void SmartPedalAudioProcessor::loadConfig(File configFile)
 // This creates new instances of the plugin..
 AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
-    return new SmartPedalAudioProcessor();
+    return new ProteusAudioProcessor();
 }

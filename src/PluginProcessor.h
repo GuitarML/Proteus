@@ -11,23 +11,25 @@
 #pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
-#include "WaveNet.h"
-#include "WaveNetLoader.h"
+
 
 #define GAIN_ID "drive"
 #define GAIN_NAME "Drive"
 #define MASTER_ID "level"
 #define MASTER_NAME "Level"
 
+#include <nlohmann/json.hpp>
+#include "RTNeuralLSTM.h"
+
 //==============================================================================
 /**
 */
-class SmartPedalAudioProcessor  : public AudioProcessor
+class ProteusAudioProcessor  : public AudioProcessor
 {
 public:
     //==============================================================================
-    SmartPedalAudioProcessor();
-    ~SmartPedalAudioProcessor();
+    ProteusAudioProcessor();
+    ~ProteusAudioProcessor();
 
     //==============================================================================
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
@@ -81,7 +83,7 @@ public:
 
     bool conditioned = false;
 
-
+    const char* char_filename = "";
 private:
 
     std::atomic<float>* driveParam = nullptr;
@@ -94,6 +96,8 @@ private:
     RT_LSTM LSTM;
     RT_LSTM LSTM2;
 
+    chowdsp::ResampledProcess<chowdsp::ResamplingTypes::SRCResampler<>> resampler;
+
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SmartPedalAudioProcessor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ProteusAudioProcessor)
 };
