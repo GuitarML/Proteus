@@ -204,6 +204,7 @@ void ProteusAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer
                 }
             }
         }
+        resampler.processOut(block44k, block);
 
 
         // Master Volume 
