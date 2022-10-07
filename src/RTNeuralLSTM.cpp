@@ -56,7 +56,7 @@ void RT_LSTM::load_json(const char* filename)
     i2 >> weights_json;
 
     // Check that format is correct
-    /*
+    /*/
     int hidden_size_temp = 0;
     std::string network;
     try {

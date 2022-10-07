@@ -159,9 +159,22 @@ void ProteusAudioProcessorEditor::loadButtonClicked()
         }
         Array<File> files;
         if (chooser.getResult().existsAsFile()) { // If a file is selected
-            processor.saved_model = chooser.getResult();
+
+            // Read in the JSON file
+            String path = chooser.getResult().getFullPathName();
+            const char* char_filename = path.toUTF8();
+
+            std::ifstream i2(char_filename);
+            nlohmann::json weights_json;
+            i2 >> weights_json;
+
+            if (weights_json.contains("/model_data/unit_type"_json_pointer) == true) {
+                processor.saved_model = chooser.getResult();
+            }
+
             files = chooser.getResult().getParentDirectory().findChildFiles(2, false, "*.json");
             processor.folder = chooser.getResult().getParentDirectory();
+
         } else if (chooser.getResult().isDirectory()){ // Else folder is selected
             files = chooser.getResult().findChildFiles(2, false, "*.json");
             processor.folder = chooser.getResult();
@@ -173,17 +186,39 @@ void ProteusAudioProcessorEditor::loadButtonClicked()
 
         if (files.size() > 0) {
             for (auto file : files) {
-                modelSelect.addItem(file.getFileNameWithoutExtension(), processor.jsonFiles.size() + 1);
-                processor.jsonFiles.push_back(file);
-                processor.num_models += 1;
+                // Read in the JSON file
+                String path = file.getFullPathName();
+                const char* char_filename = path.toUTF8();
+
+                std::ifstream i2(char_filename);
+                nlohmann::json weights_json;
+                i2 >> weights_json;
+
+                if (weights_json.contains("/model_data/unit_type"_json_pointer) == true) {
+                    modelSelect.addItem(file.getFileNameWithoutExtension(), processor.jsonFiles.size() + 1);
+                    processor.jsonFiles.push_back(file);
+                    processor.num_models += 1;
+                }
             }
             if (chooser.getResult().existsAsFile()) {
-                modelSelect.setText(processor.saved_model.getFileNameWithoutExtension());
-                processor.loadConfig(processor.saved_model);
+                // Read in the JSON file
+                String path = chooser.getResult().getFullPathName();
+                const char* char_filename = path.toUTF8();
+
+                std::ifstream i2(char_filename);
+                nlohmann::json weights_json;
+                i2 >> weights_json;
+
+                if (weights_json.contains("/model_data/unit_type"_json_pointer) == true) {
+                    modelSelect.setText(processor.saved_model.getFileNameWithoutExtension());
+                    processor.loadConfig(processor.saved_model);
+                }
             }
             else {
-                modelSelect.setSelectedItemIndex(0, juce::NotificationType::dontSendNotification);
-                modelSelectChanged();
+                if (processor.jsonFiles.empty() == false) {
+                    modelSelect.setSelectedItemIndex(0, juce::NotificationType::dontSendNotification);
+                    modelSelectChanged();
+                }
             }
         }
     });
@@ -201,12 +236,42 @@ void ProteusAudioProcessorEditor::loadFromFolder()
 
     if (files.size() > 0) {
         for (auto file : files) {
-            modelSelect.addItem(file.getFileNameWithoutExtension(), processor.jsonFiles.size() + 1);
-            processor.jsonFiles.push_back(file);
-            processor.num_models += 1;
+            
+            // Read in the JSON file
+            String path = file.getFullPathName();
+            const char* char_filename = path.toUTF8();
+
+            std::ifstream i2(char_filename);
+            nlohmann::json weights_json;
+            i2 >> weights_json;
+            
+            // Check that format is correct
+            /*
+            int hidden_size_temp = 0;
+            std::string network;
+            bool error = false;
+            try {
+                int input_size_json2 = weights_json["/model_data/input_size"_json_pointer];
+                hidden_size_temp = input_size_json2;
+
+                //std::string network2 = weights_json["/model_data/unit_type"_json_pointer];
+                //network = network2;
+                throw(hidden_size_temp);
+            }
+            catch (int hidden_size_temp) {
+                error = true;
+            }
+            */
+            if (weights_json.contains("/model_data/unit_type"_json_pointer) == true) {
+                modelSelect.addItem(file.getFileNameWithoutExtension(), processor.jsonFiles.size() + 1);
+                processor.jsonFiles.push_back(file);
+                processor.num_models += 1;
+            }
         }
-        processor.loadConfig(processor.jsonFiles[processor.current_model_index]);
-        modelSelect.setText(processor.jsonFiles[processor.current_model_index].getFileNameWithoutExtension(), juce::NotificationType::dontSendNotification);
+        if (!processor.jsonFiles.empty()) {
+            processor.loadConfig(processor.jsonFiles[processor.current_model_index]);
+            modelSelect.setText(processor.jsonFiles[processor.current_model_index].getFileNameWithoutExtension(), juce::NotificationType::dontSendNotification);
+        }
     }
 }
 
@@ -236,7 +301,7 @@ void ProteusAudioProcessorEditor::sliderValueChanged(Slider* slider)
 void ProteusAudioProcessorEditor::modelSelectChanged()
 {
     const int selectedFileIndex = modelSelect.getSelectedItemIndex();
-    if (selectedFileIndex >= 0 && selectedFileIndex < processor.jsonFiles.size()) {
+    if (selectedFileIndex >= 0 && selectedFileIndex < processor.jsonFiles.size() && processor.jsonFiles.empty() == false) { //check if correct 
         processor.loadConfig(processor.jsonFiles[selectedFileIndex]);
         processor.current_model_index = selectedFileIndex;
     }
