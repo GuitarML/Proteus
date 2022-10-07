@@ -143,6 +143,37 @@ void ProteusAudioProcessorEditor::resized()
     odFootSw.setBounds(185, 416, 175, 160);
 }
 
+bool ProteusAudioProcessorEditor::isValidFormat(File configFile)
+{
+    // Read in the JSON file
+    String path = configFile.getFullPathName();
+    const char* char_filename = path.toUTF8();
+
+    std::ifstream i2(char_filename);
+    nlohmann::json weights_json;
+    i2 >> weights_json;
+
+    int hidden_size_temp = 0;
+    std::string network = "";
+
+    // Check that the hidden_size and unit_type fields exist and are correct
+    if (weights_json.contains("/model_data/unit_type"_json_pointer) == true && weights_json.contains("/model_data/hidden_size"_json_pointer) == true) {
+        // Get the input size of the JSON file
+        int input_size_json = weights_json["/model_data/hidden_size"_json_pointer];
+        std::string network_temp = weights_json["/model_data/unit_type"_json_pointer];
+
+        network = network_temp;
+        hidden_size_temp = input_size_json;
+    } else {
+        return false;
+    }
+    
+    if (hidden_size_temp == 40 && network == "LSTM") {
+        return true;
+    } else {
+        return false;
+    }
+}
 
 void ProteusAudioProcessorEditor::loadButtonClicked()
 {
@@ -160,15 +191,7 @@ void ProteusAudioProcessorEditor::loadButtonClicked()
         Array<File> files;
         if (chooser.getResult().existsAsFile()) { // If a file is selected
 
-            // Read in the JSON file
-            String path = chooser.getResult().getFullPathName();
-            const char* char_filename = path.toUTF8();
-
-            std::ifstream i2(char_filename);
-            nlohmann::json weights_json;
-            i2 >> weights_json;
-
-            if (weights_json.contains("/model_data/unit_type"_json_pointer) == true) {
+            if (isValidFormat(chooser.getResult())) {
                 processor.saved_model = chooser.getResult();
             }
 
@@ -186,36 +209,22 @@ void ProteusAudioProcessorEditor::loadButtonClicked()
 
         if (files.size() > 0) {
             for (auto file : files) {
-                // Read in the JSON file
-                String path = file.getFullPathName();
-                const char* char_filename = path.toUTF8();
 
-                std::ifstream i2(char_filename);
-                nlohmann::json weights_json;
-                i2 >> weights_json;
-
-                if (weights_json.contains("/model_data/unit_type"_json_pointer) == true) {
+                if (isValidFormat(file)) {
                     modelSelect.addItem(file.getFileNameWithoutExtension(), processor.jsonFiles.size() + 1);
                     processor.jsonFiles.push_back(file);
                     processor.num_models += 1;
                 }
             }
             if (chooser.getResult().existsAsFile()) {
-                // Read in the JSON file
-                String path = chooser.getResult().getFullPathName();
-                const char* char_filename = path.toUTF8();
-
-                std::ifstream i2(char_filename);
-                nlohmann::json weights_json;
-                i2 >> weights_json;
-
-                if (weights_json.contains("/model_data/unit_type"_json_pointer) == true) {
+                
+                if (isValidFormat(chooser.getResult()) == true) {
                     modelSelect.setText(processor.saved_model.getFileNameWithoutExtension());
                     processor.loadConfig(processor.saved_model);
                 }
             }
             else {
-                if (processor.jsonFiles.empty() == false) {
+                if (!processor.jsonFiles.empty()) {
                     modelSelect.setSelectedItemIndex(0, juce::NotificationType::dontSendNotification);
                     modelSelectChanged();
                 }
@@ -237,32 +246,7 @@ void ProteusAudioProcessorEditor::loadFromFolder()
     if (files.size() > 0) {
         for (auto file : files) {
             
-            // Read in the JSON file
-            String path = file.getFullPathName();
-            const char* char_filename = path.toUTF8();
-
-            std::ifstream i2(char_filename);
-            nlohmann::json weights_json;
-            i2 >> weights_json;
-            
-            // Check that format is correct
-            /*
-            int hidden_size_temp = 0;
-            std::string network;
-            bool error = false;
-            try {
-                int input_size_json2 = weights_json["/model_data/input_size"_json_pointer];
-                hidden_size_temp = input_size_json2;
-
-                //std::string network2 = weights_json["/model_data/unit_type"_json_pointer];
-                //network = network2;
-                throw(hidden_size_temp);
-            }
-            catch (int hidden_size_temp) {
-                error = true;
-            }
-            */
-            if (weights_json.contains("/model_data/unit_type"_json_pointer) == true) {
+            if (isValidFormat(file)) {
                 modelSelect.addItem(file.getFileNameWithoutExtension(), processor.jsonFiles.size() + 1);
                 processor.jsonFiles.push_back(file);
                 processor.num_models += 1;

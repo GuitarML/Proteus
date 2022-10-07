@@ -41,6 +41,8 @@ private:
 
     TextButton loadButton;
     virtual void buttonClicked(Button* button) override;
+
+    bool isValidFormat(File configFile);
     void loadButtonClicked();
 
     //Image background = ImageCache::getFromMemory(BinaryData::smart_pedal_jpg, BinaryData::smart_pedal_jpgSize);
