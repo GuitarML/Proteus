@@ -171,10 +171,10 @@ void ProteusAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer
             // Apply ramped changes for gain smoothing
             if (driveValue == previousDriveValue)
             {
-                buffer.applyGain(driveValue*10.0);
+                buffer.applyGain(driveValue*2.5);
             }
              else {
-                buffer.applyGainRamp(0, (int) buffer.getNumSamples(), previousDriveValue * 10.0, driveValue * 10.0);
+                buffer.applyGainRamp(0, (int) buffer.getNumSamples(), previousDriveValue * 2.5, driveValue * 2.5);
                 previousDriveValue = driveValue;
             }
             auto block44k = resampler.processIn(block);
@@ -190,7 +190,7 @@ void ProteusAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer
             }
             resampler.processOut(block44k, block);
         } else {
-            buffer.applyGain(5.0); // Apply default boost to help sound
+            buffer.applyGain(1.5); // Apply default boost to help sound
             // resample to target sample rate
             
             auto block44k = resampler.processIn(block);
@@ -213,10 +213,10 @@ void ProteusAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer
         // Apply ramped changes for gain smoothing
         if (masterValue == previousMasterValue)
         {
-            buffer.applyGain(masterValue);
+            buffer.applyGain(masterValue*1.2);
         }
         else {
-            buffer.applyGainRamp(0, (int) buffer.getNumSamples(), previousMasterValue, masterValue);
+            buffer.applyGainRamp(0, (int) buffer.getNumSamples(), previousMasterValue * 1.2, masterValue * 1.2);
             previousMasterValue = masterValue;
         }
     }
@@ -285,6 +285,7 @@ void ProteusAudioProcessor::loadConfig(File configFile)
 
     LSTM.reset();
     LSTM2.reset();
+
     LSTM.load_json(char_filename);
     LSTM2.load_json(char_filename);
 
