@@ -23,10 +23,10 @@ ProteusAudioProcessorEditor::ProteusAudioProcessorEditor (ProteusAudioProcessor&
     loadButton.setButtonText("LOAD MODEL");
     loadButton.addListener(this);
 
-    addAndMakeVisible(modelLabel);
-    modelLabel.setText("Model", juce::NotificationType::dontSendNotification);
-    modelLabel.setJustificationType(juce::Justification::centred);
-    modelLabel.setColour(juce::Label::textColourId, juce::Colours::black);
+    //addAndMakeVisible(modelLabel);
+    //modelLabel.setText("Model", juce::NotificationType::dontSendNotification);
+    //modelLabel.setJustificationType(juce::Justification::centred);
+    //modelLabel.setColour(juce::Label::textColourId, juce::Colours::black);
 
     addAndMakeVisible(modelSelect);
     modelSelect.setColour(juce::Label::textColourId, juce::Colours::black);
@@ -41,7 +41,7 @@ ProteusAudioProcessorEditor::ProteusAudioProcessorEditor (ProteusAudioProcessor&
     auto font = modelLabel.getFont();
     float height = font.getHeight();
     font.setHeight(height);
-    modelLabel.setFont(font);
+    //modelLabel.setFont(font);
 
     // Set Widget Graphics
     blackHexKnobLAF.setLookAndFeel(ImageCache::getFromMemory(BinaryData::knob_hex_png, BinaryData::knob_hex_pngSize));
@@ -81,9 +81,9 @@ ProteusAudioProcessorEditor::ProteusAudioProcessorEditor (ProteusAudioProcessor&
     odLevelKnob.setDoubleClickReturnValue(true, 0.5);
 
     addAndMakeVisible(versionLabel);
-    versionLabel.setText("v1.5", juce::NotificationType::dontSendNotification);
+    versionLabel.setText("v1.0", juce::NotificationType::dontSendNotification);
     versionLabel.setJustificationType(juce::Justification::left);
-    versionLabel.setColour(juce::Label::textColourId, juce::Colours::black);
+    versionLabel.setColour(juce::Label::textColourId, juce::Colours::white);
     //auto font = versionLabel.getFont();
     //float height = font.getHeight();
     //font.setHeight(height); // 0.75
@@ -132,9 +132,9 @@ void ProteusAudioProcessorEditor::resized()
     // subcomponents in your editor..
 
     //Overall Widgets
-    loadButton.setBounds(186, 56, 120, 20);
-    modelSelect.setBounds(52, 26, 400, 25);
-    modelLabel.setBounds(197, 2, 90, 25);
+    loadButton.setBounds(186, 48, 120, 24);
+    modelSelect.setBounds(52, 11, 400, 28);
+    //modelLabel.setBounds(197, 2, 90, 25);
     versionLabel.setBounds(462, 632, 60, 10);
 
     // Overdrive Widgets
