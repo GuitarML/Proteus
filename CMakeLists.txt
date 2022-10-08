@@ -29,7 +29,7 @@ juce_add_plugin(Proteus
     PLUGIN_CODE Prt3 
     FORMATS ${JUCE_FORMATS}
     ProductName "Proteus"
-    LV2_URI https://github.com/GuitarML/Proteus
+    LV2URI https://github.com/GuitarML/Proteus
     ICON_BIG resources/logo.png
     MICROPHONE_PERMISSION_ENABLED TRUE
 )
