@@ -219,6 +219,17 @@ void ProteusAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer
             buffer.applyGainRamp(0, (int) buffer.getNumSamples(), previousMasterValue * 1.2, masterValue * 1.2);
             previousMasterValue = masterValue;
         }
+
+        // Smooth pop sound when changing models
+        if (pauseVolume > 0) {
+            if (pauseVolume > 2)
+                buffer.applyGain(0.0);
+            else if (pauseVolume == 2)
+                buffer.applyGainRamp(0, (int)buffer.getNumSamples(), 0, masterValue * 1.2 / 2);
+            else
+                buffer.applyGainRamp(0, (int)buffer.getNumSamples(), masterValue * 1.2 / 2, masterValue * 1.2);
+            pauseVolume -= 1;
+        }
     }
 }
 
@@ -280,6 +291,7 @@ void ProteusAudioProcessor::setStateInformation (const void* data, int sizeInByt
 void ProteusAudioProcessor::loadConfig(File configFile)
 {
     this->suspendProcessing(true);
+    pauseVolume = 3;
     String path = configFile.getFullPathName();
     char_filename = path.toUTF8();
 

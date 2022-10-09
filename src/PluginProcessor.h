@@ -84,6 +84,9 @@ public:
     bool conditioned = false;
 
     const char* char_filename = "";
+
+    int pauseVolume = 3;
+
 private:
 
     std::atomic<float>* driveParam = nullptr;
