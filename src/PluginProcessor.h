@@ -65,6 +65,7 @@ public:
     void setStateInformation (const void* data, int sizeInBytes) override;
 
     // Files and configuration
+    bool isValidFormat(File configFile);
     void loadConfig(File configFile);
 
     // Pedal/amp states

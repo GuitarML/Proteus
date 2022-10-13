@@ -176,7 +176,7 @@ bool ProteusAudioProcessorEditor::isValidFormat(File configFile)
 }
 
 void ProteusAudioProcessorEditor::loadButtonClicked()
-{
+{ 
     myChooser = std::make_unique<FileChooser> ("Select a folder to load models from",
                                                processor.folder,
                                                "*.json");
@@ -253,8 +253,11 @@ void ProteusAudioProcessorEditor::loadFromFolder()
             }
         }
         if (!processor.jsonFiles.empty()) {
-            processor.loadConfig(processor.jsonFiles[processor.current_model_index]);
-            modelSelect.setText(processor.jsonFiles[processor.current_model_index].getFileNameWithoutExtension(), juce::NotificationType::dontSendNotification);
+            processor.loadConfig(processor.saved_model);
+            modelSelect.setText(processor.saved_model.getFileNameWithoutExtension(), juce::NotificationType::dontSendNotification);
+
+            //processor.loadConfig(processor.jsonFiles[processor.current_model_index]);
+            //modelSelect.setText(processor.jsonFiles[processor.current_model_index].getFileNameWithoutExtension(), juce::NotificationType::dontSendNotification);
         }
     }
 }
@@ -288,6 +291,7 @@ void ProteusAudioProcessorEditor::modelSelectChanged()
     if (selectedFileIndex >= 0 && selectedFileIndex < processor.jsonFiles.size() && processor.jsonFiles.empty() == false) { //check if correct 
         processor.loadConfig(processor.jsonFiles[selectedFileIndex]);
         processor.current_model_index = selectedFileIndex;
+        processor.saved_model = processor.jsonFiles[selectedFileIndex];
     }
     repaint();
 }

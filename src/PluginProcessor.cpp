@@ -285,19 +285,59 @@ void ProteusAudioProcessor::setStateInformation (const void* data, int sizeInByt
         {
             treeState.replaceState (juce::ValueTree::fromXml (*xmlState));
             fw_state = xmlState->getBoolAttribute ("fw_state");
-            saved_model = xmlState->getStringAttribute("saved_model");
+            File temp_saved_model = xmlState->getStringAttribute("saved_model");
+            saved_model = temp_saved_model;
+            //saved_model = xmlState->getStringAttribute("saved_model");
+
             current_model_index = xmlState->getIntAttribute("current_model_index");
             File temp = xmlState->getStringAttribute("folder");
             folder = temp;
             if (auto* editor = dynamic_cast<ProteusAudioProcessorEditor*> (getActiveEditor()))
                 editor->resetImages();
-            if (auto* editor = dynamic_cast<ProteusAudioProcessorEditor*> (getActiveEditor()))
-                editor->loadFromFolder();
+            //if (auto* editor = dynamic_cast<ProteusAudioProcessorEditor*> (getActiveEditor()))
+            //    editor->loadFromFolder();
+
+            if (isValidFormat(saved_model)) {
+                loadConfig(saved_model);
+            }          
 
         }
     }
 }
 
+bool ProteusAudioProcessor::isValidFormat(File configFile)
+{
+    // Read in the JSON file
+    String path = configFile.getFullPathName();
+    const char* char_filename = path.toUTF8();
+
+    std::ifstream i2(char_filename);
+    nlohmann::json weights_json;
+    i2 >> weights_json;
+
+    int hidden_size_temp = 0;
+    std::string network = "";
+
+    // Check that the hidden_size and unit_type fields exist and are correct
+    if (weights_json.contains("/model_data/unit_type"_json_pointer) == true && weights_json.contains("/model_data/hidden_size"_json_pointer) == true) {
+        // Get the input size of the JSON file
+        int input_size_json = weights_json["/model_data/hidden_size"_json_pointer];
+        std::string network_temp = weights_json["/model_data/unit_type"_json_pointer];
+
+        network = network_temp;
+        hidden_size_temp = input_size_json;
+    }
+    else {
+        return false;
+    }
+
+    if (hidden_size_temp == 40 && network == "LSTM") {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
 
 void ProteusAudioProcessor::loadConfig(File configFile)
 {
@@ -317,6 +357,8 @@ void ProteusAudioProcessor::loadConfig(File configFile)
     } else {
         conditioned = true;
     }
+
+    //saved_model = configFile;
 
     this->suspendProcessing(false);
 }
