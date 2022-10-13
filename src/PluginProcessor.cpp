@@ -31,6 +31,12 @@ ProteusAudioProcessor::ProteusAudioProcessor()
 {
     driveParam = treeState.getRawParameterValue (GAIN_ID);
     masterParam = treeState.getRawParameterValue (MASTER_ID);
+
+    pauseVolume = 3;
+
+    // Check if this works to load without GUI -> This doesnt work
+    //if (auto* editor = dynamic_cast<ProteusAudioProcessorEditor*> (getActiveEditor()))
+    //    editor->loadFromFolder();
 }
 
 ProteusAudioProcessor::~ProteusAudioProcessor()
@@ -105,6 +111,8 @@ void ProteusAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
     
+    *dcBlocker.state = *dsp::IIR::Coefficients<float>::makeHighPass (sampleRate, 35.0f);
+
     // prepare resampler for target sample rate: 44.1 kHz
     constexpr double targetSampleRate = 44100.0;
     //resampler.prepareWithTargetSampleRate ({ sampleRate, (uint32) samplesPerBlock, 1 }, targetSampleRate);
@@ -113,6 +121,8 @@ void ProteusAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
 
     dsp::ProcessSpec specMono { sampleRate, static_cast<uint32> (samplesPerBlock), 1 };
     dsp::ProcessSpec spec{ sampleRate, static_cast<uint32> (samplesPerBlock), 2 };
+
+    dcBlocker.prepare (spec); 
 
     LSTM.reset();
     LSTM2.reset();
@@ -162,6 +172,7 @@ void ProteusAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer
     const int numInputChannels = getTotalNumInputChannels();
 
     dsp::AudioBlock<float> block(buffer);
+    dsp::ProcessContextReplacing<float> context(block);
 
     // Overdrive Pedal ================================================================== 
     if (fw_state == 1) {
@@ -207,16 +218,16 @@ void ProteusAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer
             resampler.processOut(block44k, block);
         }
 
-
+        dcBlocker.process(context);
 
         // Master Volume 
         // Apply ramped changes for gain smoothing
         if (masterValue == previousMasterValue)
         {
-            buffer.applyGain(masterValue*1.2);
+            buffer.applyGain(masterValue);
         }
         else {
-            buffer.applyGainRamp(0, (int) buffer.getNumSamples(), previousMasterValue * 1.2, masterValue * 1.2);
+            buffer.applyGainRamp(0, (int) buffer.getNumSamples(), previousMasterValue, masterValue);
             previousMasterValue = masterValue;
         }
 
@@ -225,9 +236,9 @@ void ProteusAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer
             if (pauseVolume > 2)
                 buffer.applyGain(0.0);
             else if (pauseVolume == 2)
-                buffer.applyGainRamp(0, (int)buffer.getNumSamples(), 0, masterValue * 1.2 / 2);
+                buffer.applyGainRamp(0, (int)buffer.getNumSamples(), 0, masterValue / 2);
             else
-                buffer.applyGainRamp(0, (int)buffer.getNumSamples(), masterValue * 1.2 / 2, masterValue * 1.2);
+                buffer.applyGainRamp(0, (int)buffer.getNumSamples(), masterValue / 2, masterValue);
             pauseVolume -= 1;
         }
     }
