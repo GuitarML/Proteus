@@ -81,7 +81,7 @@ ProteusAudioProcessorEditor::ProteusAudioProcessorEditor (ProteusAudioProcessor&
     odLevelKnob.setDoubleClickReturnValue(true, 0.5);
 
     addAndMakeVisible(versionLabel);
-    versionLabel.setText("v1.0", juce::NotificationType::dontSendNotification);
+    versionLabel.setText("v1.1", juce::NotificationType::dontSendNotification);
     versionLabel.setJustificationType(juce::Justification::left);
     versionLabel.setColour(juce::Label::textColourId, juce::Colours::white);
     //auto font = versionLabel.getFont();
@@ -252,10 +252,17 @@ void ProteusAudioProcessorEditor::loadFromFolder()
                 processor.num_models += 1;
             }
         }
+        // Try to load model from saved_model, if it doesnt exist and jsonFiles is not empty, load the first model (if it exists and is valid format)
         if (!processor.jsonFiles.empty()) {
-            processor.loadConfig(processor.saved_model);
-            modelSelect.setText(processor.saved_model.getFileNameWithoutExtension(), juce::NotificationType::dontSendNotification);
-
+            if (processor.saved_model.existsAsFile() && isValidFormat(processor.saved_model)) {
+                processor.loadConfig(processor.saved_model);
+                modelSelect.setText(processor.saved_model.getFileNameWithoutExtension(), juce::NotificationType::dontSendNotification);
+            } else {
+                if (processor.jsonFiles[0].existsAsFile() && isValidFormat(processor.jsonFiles[0])) {
+                    processor.loadConfig(processor.jsonFiles[0]);
+                    modelSelect.setText(processor.jsonFiles[0].getFileNameWithoutExtension(), juce::NotificationType::dontSendNotification);
+                }
+            }
             //processor.loadConfig(processor.jsonFiles[processor.current_model_index]);
             //modelSelect.setText(processor.jsonFiles[processor.current_model_index].getFileNameWithoutExtension(), juce::NotificationType::dontSendNotification);
         }
@@ -289,9 +296,11 @@ void ProteusAudioProcessorEditor::modelSelectChanged()
 {
     const int selectedFileIndex = modelSelect.getSelectedItemIndex();
     if (selectedFileIndex >= 0 && selectedFileIndex < processor.jsonFiles.size() && processor.jsonFiles.empty() == false) { //check if correct 
-        processor.loadConfig(processor.jsonFiles[selectedFileIndex]);
-        processor.current_model_index = selectedFileIndex;
-        processor.saved_model = processor.jsonFiles[selectedFileIndex];
+        if (processor.jsonFiles[selectedFileIndex].existsAsFile() && isValidFormat(processor.jsonFiles[selectedFileIndex])) {
+            processor.loadConfig(processor.jsonFiles[selectedFileIndex]);
+            processor.current_model_index = selectedFileIndex;
+            processor.saved_model = processor.jsonFiles[selectedFileIndex];
+        }
     }
     repaint();
 }
