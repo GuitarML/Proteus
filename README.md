@@ -1,13 +1,13 @@
 # Proteus
 
-[![Downloads](https://img.shields.io/github/downloads/GuitarML/SmartGuitarPedal/total)](https://somsubhra.github.io/github-release-stats/?username=GuitarML&repository=SmartGuitarPedal&page=1&per_page=30) [![CI](https://github.com/GuitarML/SmartGuitarPedal/actions/workflows/cmake.yml/badge.svg)](https://github.com/GuitarML/SmartGuitarPedal/actions/workflows/cmake.yml)
+[![Downloads](https://img.shields.io/github/downloads/GuitarML/Releases/total)](https://somsubhra.github.io/github-release-stats/?username=GuitarML&repository=Releases&page=1&per_page=30) [![CI](https://github.com/GuitarML/Releases/actions/workflows/cmake.yml/badge.svg)](https://github.com/GuitarML/Releases/actions/workflows/cmake.yml)
 
 Guitar plugin made with JUCE that uses neural network models to emulate real world hardware.
 
 - Checkout the tutorial on [YouTube](https://youtu.be/HrNf6DNRUdU) for creating your own models for the SmartPedal.
 - Visit the GuitarML [ToneLibrary Website](https://guitarml.com/tonelibrary/tonelib-sa.html) to download SmartPedal compatible models.
 
-![app](https://github.com/GuitarML/SmartGuitarPedal/blob/master/resources/app_pic.png)
+![app](https://github.com/GuitarML/Proteus/blob/master/resources/app_pic.png)
 
 This plugin uses a WaveNet model to recreate the sound of real world hardware, such as
 a TS9 Tubescreamer or Blues Jr amp. Drive and Level adjust the signal gain before and after the 
