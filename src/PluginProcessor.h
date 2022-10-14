@@ -87,6 +87,8 @@ public:
 
     int pauseVolume = 3;
 
+    bool model_loaded = false;
+
 private:
 
     std::atomic<float>* driveParam = nullptr;

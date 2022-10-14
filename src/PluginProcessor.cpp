@@ -175,9 +175,8 @@ void ProteusAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer
     dsp::ProcessContextReplacing<float> context(block);
 
     // Overdrive Pedal ================================================================== 
-    if (fw_state == 1) {
+    if (fw_state == 1 && model_loaded == true) {
         
-
         if (conditioned == false) {
             // Apply ramped changes for gain smoothing
             if (driveValue == previousDriveValue)
@@ -327,7 +326,7 @@ void ProteusAudioProcessor::loadConfig(File configFile)
     }
 
     //saved_model = configFile;
-
+    model_loaded = true;
     this->suspendProcessing(false);
 }
 

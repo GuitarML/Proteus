@@ -188,6 +188,7 @@ void ProteusAudioProcessorEditor::loadButtonClicked()
         if (!chooser.getResult().exists()) {
                 return;
         }
+        processor.model_loaded = false;
         Array<File> files;
         if (chooser.getResult().existsAsFile()) { // If a file is selected
 
@@ -229,6 +230,8 @@ void ProteusAudioProcessorEditor::loadButtonClicked()
                     modelSelectChanged();
                 }
             }
+        } else {
+            processor.saved_model = ""; // Clear the saved model since there's nothing in the dropdown
         }
     });
     
@@ -236,7 +239,7 @@ void ProteusAudioProcessorEditor::loadButtonClicked()
 
 void ProteusAudioProcessorEditor::loadFromFolder()
 {
-
+    processor.model_loaded = false;
     Array<File> files;
     files = processor.folder.findChildFiles(2, false, "*.json");
 

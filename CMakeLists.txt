@@ -31,6 +31,11 @@ juce_add_plugin(Proteus
     ProductName "Proteus"
     LV2URI https://github.com/GuitarML/Proteus
     ICON_BIG resources/logo.png
+
+    VST3_CATEGORIES Fx Distortion
+    AU_MAIN_TYPE kAudioUnitType_Effect
+    AAX_CATEGORY AAX_ePlugInCategory_Harmonic
+
     MICROPHONE_PERMISSION_ENABLED TRUE
 )
 
