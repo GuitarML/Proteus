@@ -74,7 +74,7 @@ private:
     void odFootSwClicked();
     void modelSelectChanged();
 
-
+    bool model_loaded = false;
 
 public:
     std::unique_ptr <AudioProcessorValueTreeState::SliderAttachment> driveSliderAttach;

@@ -87,6 +87,8 @@ public:
 
     int pauseVolume = 3;
 
+    bool model_loaded = false;
+
 private:
 
     std::atomic<float>* driveParam = nullptr;
@@ -98,6 +100,8 @@ private:
 
     RT_LSTM LSTM;
     RT_LSTM LSTM2;
+
+    dsp::ProcessorDuplicator<dsp::IIR::Filter<float>, dsp::IIR::Coefficients<float>> dcBlocker;
 
     chowdsp::ResampledProcess<chowdsp::ResamplingTypes::SRCResampler<>> resampler;
 
