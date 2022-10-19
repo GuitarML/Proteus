@@ -19,7 +19,8 @@
 #define MASTER_NAME "Level"
 
 #include <nlohmann/json.hpp>
-#include "RTNeuralLSTM.h"
+#include "ResampledRNN.h"
+
 
 //==============================================================================
 /**
@@ -88,22 +89,27 @@ public:
     int pauseVolume = 3;
 
     bool model_loaded = false;
-
+    float trainingSampleRate = 44100.0f;
 private:
 
     std::atomic<float>* driveParam = nullptr;
     std::atomic<float>* masterParam = nullptr;
 
+    dsp::Gain<float> inGain;
+
     float previousDriveValue = 0.5;
     float previousMasterValue = 0.5;
     //float steppedValue1 = 0.0;
 
-    RT_LSTM LSTM;
-    RT_LSTM LSTM2;
+    //RT_LSTM LSTM;
+    //RT_LSTM LSTM2;
+
+    ResampledRNN<40> LSTM;
+    ResampledRNN<40> LSTM2;
 
     dsp::ProcessorDuplicator<dsp::IIR::Filter<float>, dsp::IIR::Coefficients<float>> dcBlocker;
 
-    chowdsp::ResampledProcess<chowdsp::ResamplingTypes::SRCResampler<>> resampler;
+    //chowdsp::ResampledProcess<chowdsp::ResamplingTypes::SRCResampler<>> resampler;
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ProteusAudioProcessor)

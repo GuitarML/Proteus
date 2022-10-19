@@ -7,8 +7,11 @@ target_sources(Proteus PRIVATE
 	PluginEditor.h
 	PluginProcessor.cpp
 	PluginProcessor.h
-	RTNeuralLSTM.cpp
-	RTNeuralLSTM.h
+      ResampledRNN.cpp
+      ResampledRNN.h
+      SampleLSTM.h
+      SampleLSTM.tpp
+
 )
 
 #target_precompile_headers(Proteus PRIVATE pch.h)
