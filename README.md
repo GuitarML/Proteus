@@ -29,7 +29,7 @@ To share your best models, email the json files to smartguitarml@gmail.com and t
 
 ```bash
 # Clone the repository
-$ git clone https://github.com/GuitarML/SmartGuitarPedal.git
+$ git clone https://github.com/GuitarML/Proteus.git
 $ cd Proteus
 
 # initialize and set up submodules
