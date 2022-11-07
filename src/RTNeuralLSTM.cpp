@@ -55,21 +55,6 @@ void RT_LSTM::load_json(const char* filename)
     nlohmann::json weights_json;
     i2 >> weights_json;
 
-    // Check that format is correct
-    /*/
-    int hidden_size_temp = 0;
-    std::string network;
-    try {
-        hidden_size_temp = weights_json["/model_data/hidden_size"_json_pointer];
-        network = weights_json["/model_data/unit_type"_json_pointer];
-        throw(hidden_size_temp);
-    } 
-    catch (int hidden_size_temp) {
-        return;
-    }
-    */
-
-    //if (hidden_size_temp == 40 && network == "LSTM") {
     // Get the input size of the JSON file
     int input_size_json = weights_json["/model_data/input_size"_json_pointer];
     input_size = input_size_json;
@@ -84,7 +69,6 @@ void RT_LSTM::load_json(const char* filename)
     else if (input_size == 3) {
         set_weights(&model_cond2, filename);
     }
-    //}
 }
 
 
