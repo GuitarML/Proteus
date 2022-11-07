@@ -23,11 +23,6 @@ ProteusAudioProcessorEditor::ProteusAudioProcessorEditor (ProteusAudioProcessor&
     loadButton.setButtonText("LOAD MODEL");
     loadButton.addListener(this);
 
-    //addAndMakeVisible(modelLabel);
-    //modelLabel.setText("Model", juce::NotificationType::dontSendNotification);
-    //modelLabel.setJustificationType(juce::Justification::centred);
-    //modelLabel.setColour(juce::Label::textColourId, juce::Colours::black);
-
     addAndMakeVisible(modelSelect);
     modelSelect.setColour(juce::Label::textColourId, juce::Colours::black);
     modelSelect.setScrollWheelEnabled(true);
@@ -41,7 +36,6 @@ ProteusAudioProcessorEditor::ProteusAudioProcessorEditor (ProteusAudioProcessor&
     auto font = modelLabel.getFont();
     float height = font.getHeight();
     font.setHeight(height);
-    //modelLabel.setFont(font);
 
     // Set Widget Graphics
     blackHexKnobLAF.setLookAndFeel(ImageCache::getFromMemory(BinaryData::knob_hex_png, BinaryData::knob_hex_pngSize));
@@ -56,13 +50,6 @@ ProteusAudioProcessorEditor::ProteusAudioProcessorEditor (ProteusAudioProcessor&
         0.0);
     addAndMakeVisible(odFootSw);
     odFootSw.addListener(this);
-
-    //odLED.setImages(true, true, true,
-    //    ImageCache::getFromMemory(BinaryData::led_red_on_png, BinaryData::led_red_on_pngSize), 1.0, Colours::transparentWhite,
-    //    Image(), 1.0, Colours::transparentWhite,
-    //    ImageCache::getFromMemory(BinaryData::led_red_on_png, BinaryData::led_red_on_pngSize), 1.0, Colours::transparentWhite,
-    //    0.0);
-    //addAndMakeVisible(odLED);
 
     driveSliderAttach = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(processor.treeState, GAIN_ID, odDriveKnob);
     addAndMakeVisible(odDriveKnob);
@@ -84,9 +71,6 @@ ProteusAudioProcessorEditor::ProteusAudioProcessorEditor (ProteusAudioProcessor&
     versionLabel.setText("v1.1", juce::NotificationType::dontSendNotification);
     versionLabel.setJustificationType(juce::Justification::left);
     versionLabel.setColour(juce::Label::textColourId, juce::Colours::white);
-    //auto font = versionLabel.getFont();
-    //float height = font.getHeight();
-    //font.setHeight(height); // 0.75
     versionLabel.setFont(font);
 
     // Size of plugin GUI
@@ -266,8 +250,6 @@ void ProteusAudioProcessorEditor::loadFromFolder()
                     modelSelect.setText(processor.jsonFiles[0].getFileNameWithoutExtension(), juce::NotificationType::dontSendNotification);
                 }
             }
-            //processor.loadConfig(processor.jsonFiles[processor.current_model_index]);
-            //modelSelect.setText(processor.jsonFiles[processor.current_model_index].getFileNameWithoutExtension(), juce::NotificationType::dontSendNotification);
         }
     }
 }
