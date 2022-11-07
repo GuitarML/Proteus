@@ -1,38 +1,27 @@
 # Proteus
 
-[![Downloads](https://img.shields.io/github/downloads/GuitarML/Releases/total)](https://somsubhra.github.io/github-release-stats/?username=GuitarML&repository=Releases&page=1&per_page=30) [![CI](https://github.com/GuitarML/Releases/actions/workflows/cmake.yml/badge.svg)](https://github.com/GuitarML/Releases/actions/workflows/cmake.yml)
+Capture your own amps/pedals/plugins with Proteus. Can capture a drive/tone knob, or snapshot of the sound at a specific setting. Use the Proteus Capture Utility to quickly train models in the cloud with Colab.
 
-Guitar plugin made with JUCE that uses neural network models to emulate real world hardware.
-
-- Checkout the tutorial on [YouTube](https://youtu.be/HrNf6DNRUdU) for creating your own models for the SmartPedal.
-- Visit the GuitarML [ToneLibrary Website](https://guitarml.com/tonelibrary/tonelib-sa.html) to download SmartPedal compatible models.
+- Checkout the video tutorials for creating your own models for the Proteus plugin.
+  - [Amp Capture]()
+  - [Pedal Capture]()
+  - [Plugin Capture]()
+  
+- Visit the GuitarML [ToneLibrary Website](https://guitarml.com/tonelibrary/tonelib-pro.html) to download Proteus compatible models.
 
 ![app](https://github.com/GuitarML/Proteus/blob/master/resources/app_pic.png)
 
-This plugin uses a WaveNet model to recreate the sound of real world hardware, such as
-a TS9 Tubescreamer or Blues Jr amp. Drive and Level adjust the signal gain before and after the 
-WaveNet model processing. As of version 1.5, the SmartPedal can run models conditioned on a single parameter, 
-such as a gain control. When conditioned models are loaded, the LED graphic will change colors 
-from red to blue, and the Drive knob will control the conditioned parameter.
+Proteus uses a LSTM neural network to emulate guitar amplifiers and distortion/overdrive/boost pedals. You can capture the sound of an amplifier either by recording with a microphone, or direct out from a load box. When running "Direct Out" models, you will need to use an Impulse Response plugin to accurately model the amp speaker/cabinet. 
 
-The WaveNet model is effective at emulating distortion style effects or tube amplifiers, but cannot capture
-time based effects such as reverb or delay. You can capture the sound of an amplifier either by recording with 
-a microphone, or direct out from a load box. When running "Direct Out" models, you will need to use an
-Impulse Response plugin to accurately model the amp speaker/cabinet. 
+You can create your own models using the [Automated-GuitarAmpModelling](https://github.com/GuitarML/Automated-GuitarAmpModelling) repository directly (LSTM with hidden size 40), or by using the Capture Utility files (available for download at [GuitarML.com](https://guitarml.com/)) with Google Colab.
 
-You can create your own models and load them in SmartGuitarPedal using the [PedalNetRT](https://github.com/GuitarML/PedalNetRT) repository directly, or
-by using the Capture Utility files (available for download at [GuitarML.com](https://guitarml.com/)) with Google Colab and following the [Video Tutorial](https://youtu.be/HrNf6DNRUdU).
-
-Model training is done using PyTorch on pre recorded .wav samples. More info in the above repository. 
-To share your best models, email the json files to smartguitarml@gmail.com and they may be included 
-in the latest [ToneLibrary](https://guitarml.com/tonelibrary/tonelib-sa.html) release.
-
-Also see companion plugin, the [SmartGuitarAmp](https://github.com/GuitarML/SmartGuitarAmp)
+To share your best models, email the json files to smartguitarml@gmail.com and they may be included in the ToneLibrary.
 
 ## Installing the plugin
 
-1. Download the appropriate plugin installer (Windows, Mac, Linux) from the [Releases](https://github.com/GuitarML/SmartGuitarPedal/releases) page.
+1. Download the appropriate plugin installer (Windows, Mac, Linux) from the [Releases](https://github.com/GuitarML/Releases/releases) page.
 2. Run the installer and follow the instructions. May need to reboot to allow your DAW to recognize the new plugin.
+3. Download the Capture Utility from [GuitarML.com](https://guitarml.com/#products) to create your own amp/pedal/plugin captures.
 
 ## Build Instructions
 
@@ -41,7 +30,7 @@ Also see companion plugin, the [SmartGuitarAmp](https://github.com/GuitarML/Smar
 ```bash
 # Clone the repository
 $ git clone https://github.com/GuitarML/SmartGuitarPedal.git
-$ cd SmartGuitarPedal
+$ cd Proteus
 
 # initialize and set up submodules
 $ git submodule update --init --recursive
@@ -50,16 +39,11 @@ $ git submodule update --init --recursive
 $ cmake -Bbuild
 $ cmake --build build --config Release
 ```
-The binaries will be located in `SmartPedal/build/SmartPedal_artefacts/`
+The binaries will be located in `Proteus/build/Proteus_artefacts/`
 
 ### Loading hardware models
-Use the Load Model button to select a folder containing SmartPedal json models. Note that models for NeuralPi and SmartAmpPro use
-a different model architecture and will not be compatible. Only WaveNet models trained using PedalNetRT are compatible with SmartPedal and SmartAmp.
-
-## License
-This project is licensed under the Apache License, Version 2.0 - see the [LICENSE](LICENSE) file for details.
-
-This project builds off the work done in the [WaveNetVA](https://github.com/damskaggep/WaveNetVA) repository.
+Use the Load Model button to select a folder containing Proteus json models. Note that models for NeuralPi and SmartPedal use
+a different model architecture and will not be compatible. 
 
 ### Special Thanks
-Special thanks to Stefan Schmidt for the graphics in SmartPedal version 1.5. These were created from a Blender model and rendered using the Cycles render engine.
+Special thanks to John Stutts and Stefan Schmidt for the graphics used in Proteus. 
