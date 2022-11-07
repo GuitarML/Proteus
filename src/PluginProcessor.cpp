@@ -33,10 +33,6 @@ ProteusAudioProcessor::ProteusAudioProcessor()
     masterParam = treeState.getRawParameterValue (MASTER_ID);
 
     pauseVolume = 3;
-
-    // Check if this works to load without GUI -> This doesnt work
-    //if (auto* editor = dynamic_cast<ProteusAudioProcessorEditor*> (getActiveEditor()))
-    //    editor->loadFromFolder();
 }
 
 ProteusAudioProcessor::~ProteusAudioProcessor()
@@ -286,17 +282,13 @@ void ProteusAudioProcessor::setStateInformation (const void* data, int sizeInByt
             fw_state = xmlState->getBoolAttribute ("fw_state");
             File temp_saved_model = xmlState->getStringAttribute("saved_model");
             saved_model = temp_saved_model;
-            //saved_model = xmlState->getStringAttribute("saved_model");
 
             current_model_index = xmlState->getIntAttribute("current_model_index");
             File temp = xmlState->getStringAttribute("folder");
             folder = temp;
             if (auto* editor = dynamic_cast<ProteusAudioProcessorEditor*> (getActiveEditor()))
                 editor->resetImages();
-            //if (auto* editor = dynamic_cast<ProteusAudioProcessorEditor*> (getActiveEditor()))
-            //    editor->loadFromFolder();
 
-            //if (isValidFormat(saved_model)) {
             if (saved_model.existsAsFile()) {
                 loadConfig(saved_model);
             }          
