@@ -3,9 +3,9 @@
 Capture your own amps/pedals/plugins with Proteus. Can capture a drive/tone knob, or snapshot of the sound at a specific setting. Use the Proteus Capture Utility to quickly train models in the cloud with Colab.
 
 - Checkout the video tutorials for creating your own models for the Proteus plugin.
-  - [Amp Capture]()
-  - [Pedal Capture]()
-  - [Plugin Capture]()
+  - [Amp Capture](https://youtu.be/2vs4WKYgZUs)
+  - [Pedal Capture](https://youtu.be/86oQuYHjpy0)
+  - [Plugin Capture](https://youtu.be/vwsSYpqRqyM)
   
 - Visit the GuitarML [ToneLibrary Website](https://guitarml.com/tonelibrary/tonelib-pro.html) to download Proteus compatible models.
 
