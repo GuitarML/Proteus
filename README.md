@@ -8,6 +8,7 @@ Capture your own amps/pedals/plugins with Proteus. Can capture a drive/tone knob
   - [Plugin Capture](https://youtu.be/vwsSYpqRqyM)
   
 - Visit the GuitarML [ToneLibrary Website](https://guitarml.com/tonelibrary/tonelib-pro.html) to download Proteus compatible models.
+- Download the [Proteus Capture Utility](https://github.com/GuitarML/Releases/releases/download/v1.0.0/Proteus_Capture_Utility.zip), which includes the input audio file and Colab script to train models for Proteus.
 
 ![app](https://github.com/GuitarML/Proteus/blob/master/resources/app_pic.png)
 
