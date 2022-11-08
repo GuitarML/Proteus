@@ -13,7 +13,7 @@ Capture your own amps/pedals/plugins with Proteus. Can capture a drive/tone knob
 
 Proteus uses a LSTM neural network to emulate guitar amplifiers and distortion/overdrive/boost pedals. You can capture the sound of an amplifier either by recording with a microphone, or direct out from a load box. When running "Direct Out" models, you will need to use an Impulse Response plugin to accurately model the amp speaker/cabinet. 
 
-You can create your own models using the [Automated-GuitarAmpModelling](https://github.com/GuitarML/Automated-GuitarAmpModelling) repository directly (LSTM with hidden size 40), or by using the Capture Utility files (available for download at [GuitarML.com](https://guitarml.com/)) with Google Colab.
+You can create your own models using the [Automated-GuitarAmpModelling](https://github.com/GuitarML/Automated-GuitarAmpModelling) repository directly (LSTM with hidden size 40), or by using the Capture Utility files (available for download at [GuitarML.com](https://guitarml.com/)) with Google Colab (recommended).
 
 To share your best models, email the json files to smartguitarml@gmail.com and they may be included in the ToneLibrary.
 
