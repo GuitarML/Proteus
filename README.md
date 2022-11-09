@@ -20,7 +20,7 @@ To share your best models, email the json files to smartguitarml@gmail.com and t
 
 ## Installing the plugin
 
-1. Download the appropriate plugin installer (Windows, Mac, Linux) from the [Releases](https://github.com/GuitarML/Releases/releases) page.
+1. Download the appropriate plugin installer (Windows, Mac, Linux) from [GuitarML.com](https://guitarml.com/#products) or the [Releases](https://github.com/GuitarML/Releases/releases) page.
 2. Run the installer and follow the instructions. May need to reboot to allow your DAW to recognize the new plugin.
 3. Download the Proteus Capture Utility from [GuitarML.com](https://guitarml.com/#products) to create your own amp/pedal/plugin captures.
 
