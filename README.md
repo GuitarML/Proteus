@@ -65,5 +65,14 @@ $ cmake --build build --config Release
 ```
 The binaries will be located in `Proteus/build/Proteus_artefacts/`
 
-### Special Thanks
+## Info
+The neural network used in Proteus is a re-creation of the LSTM inference model from [Real-Time Guitar Amplifier Emulation with Deep Learning](https://www.mdpi.com/2076-3417/10/3/766/htm)
+
+The [Automated-GuitarAmpModelling](https://github.com/Alec-Wright/Automated-GuitarAmpModelling) project was used to train the .json models.<br>
+GuitarML maintains a [fork](https://github.com/GuitarML/Automated-GuitarAmpModelling) with a few extra helpful features, including a Colab training script.
+IMPORTANT: When training models for Proteus, ensure that a LSTM size of 40 is used. Proteus is optimized to run models of this size, and other sizes are not  compatible.
+
+The plugin uses [RTNeural](https://github.com/jatinchowdhury18/RTNeural), which is a highly optimized neural net inference engine intended for audio applications. 
+
+## Special Thanks
 Special thanks to John Stutts and Stefan Schmidt for the graphics used in Proteus. 
