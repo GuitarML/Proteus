@@ -32,13 +32,14 @@ Download available models from the [Proteus ToneLibrary](https://guitarml.com/to
 2. Play the ProteusCapture.wav from your DAW / Audio Device and input to your amp/pedal/plugin, and record the output. Recommended to use a Reamp for impedence matching, and a Load Box for direct amp captures. 
 
 ### Troubleshooting Captures
-1. The model training is very sensitive to any latency in your output recording. Audio timing mismatch will result in stalled training, where it never goes below 0.75 loss value. May be required to manually line up your audio files before exporting, using the initial click (approx. 1 second into the ProteusCapture.wav) as guide.
+1. The model training is very sensitive to any latency in your output recording. Audio timing mismatch will result in stalled training, where it never goes below 0.75 loss value. May be required to manually line up your audio files before exporting, using the initial click (approx. 1 second into the ProteusCapture.wav) as a guide.
 2. You can capture amps using a microphone, which will result in the capture of the mic/cab/speaker. These captures may be less accurate than direct amp captures from a load box. Direct amp captures are also more flexible for adding Impluse Responses after the Proteus plugin.
 3. Recommended to test a snapshot capture of your device before attempting a Knob capture. Snapshot captures are much quicker, less prone to error, and can be more accurate.
 4. When exporting your audio recording, it needs to be WAV format, PCM16 (FP32 also acceptable), 44100 samplerate, Mono. 
-5. In Colab, the different devices listed for Step 4a,b,c are just guidelines. They start from a pre-trained model. You may be able to get better results by trying a different options for step 4. 
-6. You may use your own input audio for training, either by using your own or modifying the ProteusCapture.wav. If you do this, modify the training line in Colab step 4 in the following way (using your custom file for "YourNewInput.wav"):
+5. In Colab, the different devices listed for Step 4a,b,c are just guidelines. They start from a pre-trained model. You may be able to get better results by trying a different option for step 4. 
+6. You may use different input audio for training, either by modifying the ProteusCapture.wav or using your own. If you do this, modify the training line in Colab step 4 in the following way (using your custom file for "YourNewInput.wav") and upload both wav files to Colab:<br>
 `!python prep_wav.py $model -s ../YourNewInput.wav ../out.wav --normalize true`
+7. The sound you record is the sound the code will try to capture. Minimize noise/unwanted sounds for best results. You can also modify your recording with EQ or other effects.
 
 ## Build Instructions
 
