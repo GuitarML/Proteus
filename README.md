@@ -26,7 +26,7 @@ To share your best models, email the json files to smartguitarml@gmail.com and t
 2. Run the installer and follow the instructions. May need to reboot to allow your DAW to recognize the new plugin.
 3. Download the Proteus Capture Utility from [GuitarML.com](https://guitarml.com/#products) to create your own amp/pedal/plugin captures.
 
-### Loading models
+## Loading models
 Download available models from the [Proteus ToneLibrary](https://guitarml.com/tonelibrary/tonelib-pro.html). Use the Load Model button to select a folder containing Proteus json models. Note that models for NeuralPi and SmartPedal use a different model architecture and will not be compatible.
 
 ## Capturing an Amp/Pedal/Plugin 
@@ -37,7 +37,7 @@ Download available models from the [Proteus ToneLibrary](https://guitarml.com/to
 
 Note: Recommended to follow along with the video tutorials listed above.
 
-### Troubleshooting Captures
+## Troubleshooting Captures
 1. The model training is very sensitive to any latency in your output recording. Audio timing mismatch will result in stalled training, where it never goes below 0.75 loss value. May be required to manually line up your audio files before exporting, using the initial click (approx. 1 second into the ProteusCapture.wav) as a guide.
 2. You can capture amps using a microphone, which will result in the capture of the mic/cab/speaker. These captures may be less accurate than direct amp captures from a load box. Direct amp captures are also more flexible for adding Impluse Responses after the Proteus plugin.
 3. Recommended to test a snapshot capture of your device before attempting a Knob capture. Snapshot captures are much quicker, less prone to error, and can be more accurate.
