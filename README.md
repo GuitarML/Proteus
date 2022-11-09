@@ -28,7 +28,7 @@ To share your best models, email the json files to smartguitarml@gmail.com and t
 Download available models from the [Proteus ToneLibrary](https://guitarml.com/tonelibrary/tonelib-pro.html). Use the Load Model button to select a folder containing Proteus json models. Note that models for NeuralPi and SmartPedal use a different model architecture and will not be compatible.
 
 ## Capturing an Amp/Pedal/Plugin 
-1. Download the [Proteus_Capture_Utility.zip](https://github.com/GuitarML/Releases/releases/download/v1.0.0/Proteus_Capture_Utility.zip)
+1. Download the [Proteus_Capture_Utility.zip](https://github.com/GuitarML/Releases/releases/download/v1.0.0/Proteus_Capture_Utility.zip) to obtain the ProteusCapture.wav and ProteusCapture.ipynb Colab script.
 2. Play the ProteusCapture.wav from your DAW / Audio Device and input to your amp/pedal/plugin, and record the output. Recommended to use a Reamp for impedence matching, and a Load Box for direct amp captures. 
 3. Upload the "ProteusCapture.ipynb" from the Capture Utility to the Google Colab website. Upload your out.wav file and follow the instructions in the Colab script to create a Proteus compatible model. Snapshot model training will take 10 minutes or less, and Knob model training will take around 30 minutes. For Knob captures, you will need 5 separate out wav files, as detailed in the tutorial videos.
 4. Download your model file (json format) and load into the Proteus plugin.
