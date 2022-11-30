@@ -51,6 +51,14 @@ ProteusAudioProcessorEditor::ProteusAudioProcessorEditor (ProteusAudioProcessor&
     addAndMakeVisible(odFootSw);
     odFootSw.addListener(this);
 
+    cabOnButton.setImages(true, true, true,
+        ImageCache::getFromMemory(BinaryData::cab_switch_on_png, BinaryData::cab_switch_on_pngSize), 1.0, Colours::transparentWhite,
+        Image(), 1.0, Colours::transparentWhite,
+        ImageCache::getFromMemory(BinaryData::cab_switch_on_png, BinaryData::cab_switch_on_pngSize), 1.0, Colours::transparentWhite,
+        0.0);
+    addAndMakeVisible(cabOnButton);
+    cabOnButton.addListener(this);
+
     driveSliderAttach = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(processor.treeState, GAIN_ID, odDriveKnob);
     addAndMakeVisible(odDriveKnob);
     odDriveKnob.setLookAndFeel(&blackHexKnobLAF);
@@ -67,8 +75,32 @@ ProteusAudioProcessorEditor::ProteusAudioProcessorEditor (ProteusAudioProcessor&
     odLevelKnob.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::NoTextBox, false, 50, 20);
     odLevelKnob.setDoubleClickReturnValue(true, 0.5);
 
+    bassSliderAttach = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(processor.treeState, BASS_ID, ampBassKnob);    	    
+    addAndMakeVisible(ampBassKnob);
+    ampBassKnob.setLookAndFeel(&blackHexKnobLAF);
+    ampBassKnob.addListener(this);
+    ampBassKnob.setSliderStyle(juce::Slider::SliderStyle::RotaryVerticalDrag);
+    ampBassKnob.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::NoTextBox, false, 50, 20);
+    ampBassKnob.setDoubleClickReturnValue(true, 0.0);
+
+    midSliderAttach = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(processor.treeState, MID_ID, ampMidKnob);    
+    addAndMakeVisible(ampMidKnob);
+    ampMidKnob.setLookAndFeel(&blackHexKnobLAF);
+    ampMidKnob.addListener(this);
+    ampMidKnob.setSliderStyle(juce::Slider::SliderStyle::RotaryVerticalDrag);
+    ampMidKnob.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::NoTextBox, false, 50, 20);
+    ampMidKnob.setDoubleClickReturnValue(true, 0.0);
+
+    trebleSliderAttach = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(processor.treeState, TREBLE_ID, ampTrebleKnob);
+    addAndMakeVisible(ampTrebleKnob);
+    ampTrebleKnob.setLookAndFeel(&blackHexKnobLAF);
+    ampTrebleKnob.addListener(this);
+    ampTrebleKnob.setSliderStyle(juce::Slider::SliderStyle::RotaryVerticalDrag);
+    ampTrebleKnob.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::NoTextBox, false, 50, 20);
+    ampTrebleKnob.setDoubleClickReturnValue(true, 0.0);
+
     addAndMakeVisible(versionLabel);
-    versionLabel.setText("v1.1", juce::NotificationType::dontSendNotification);
+    versionLabel.setText("v1.2", juce::NotificationType::dontSendNotification);
     versionLabel.setJustificationType(juce::Justification::left);
     versionLabel.setColour(juce::Label::textColourId, juce::Colours::white);
     versionLabel.setFont(font);
@@ -83,6 +115,11 @@ ProteusAudioProcessorEditor::ProteusAudioProcessorEditor (ProteusAudioProcessor&
 
 ProteusAudioProcessorEditor::~ProteusAudioProcessorEditor()
 {
+    odDriveKnob.setLookAndFeel(nullptr);
+    odLevelKnob.setLookAndFeel(nullptr);
+    ampBassKnob.setLookAndFeel(nullptr);
+    ampMidKnob.setLookAndFeel(nullptr);
+    ampTrebleKnob.setLookAndFeel(nullptr);
 }
 
 //==============================================================================
@@ -120,11 +157,16 @@ void ProteusAudioProcessorEditor::resized()
     modelSelect.setBounds(52, 11, 400, 28);
     //modelLabel.setBounds(197, 2, 90, 25);
     versionLabel.setBounds(462, 632, 60, 10);
+    cabOnButton.setBounds(370, 565, 26, 11);
 
     // Overdrive Widgets
     odDriveKnob.setBounds(103, 97, 176, 176);
     odLevelKnob.setBounds(268, 97, 176, 176);
     odFootSw.setBounds(185, 416, 175, 160);
+
+    ampBassKnob.setBounds(350, 480, 75, 75);
+    ampMidKnob.setBounds(350, 400, 75, 75);
+    ampTrebleKnob.setBounds(350, 320, 75, 75);
 }
 
 bool ProteusAudioProcessorEditor::isValidFormat(File configFile)
@@ -261,6 +303,8 @@ void ProteusAudioProcessorEditor::buttonClicked(juce::Button* button)
         odFootSwClicked();
     } else if (button == &loadButton) {
         loadButtonClicked();
+    } else if (button == &cabOnButton) {
+        cabOnButtonClicked();
     }
 }
 
@@ -272,9 +316,23 @@ void ProteusAudioProcessorEditor::odFootSwClicked() {
     resetImages();
 }
 
+void ProteusAudioProcessorEditor::cabOnButtonClicked() {
+    if (processor.cab_state == 0) {
+        processor.cab_state = 1;
+    }
+    else {
+        processor.cab_state = 0;
+    }
+    resetImages();
+    repaint();
+}
+
 void ProteusAudioProcessorEditor::sliderValueChanged(Slider* slider)
 {
-
+    // Amp
+    if (slider == &ampBassKnob || slider == &ampMidKnob || slider == &ampTrebleKnob) {
+        processor.set_ampEQ(ampBassKnob.getValue(), ampMidKnob.getValue(), ampTrebleKnob.getValue());
+    }
 }
 
 void ProteusAudioProcessorEditor::modelSelectChanged()
@@ -306,6 +364,21 @@ void ProteusAudioProcessorEditor::resetImages()
             ImageCache::getFromMemory(BinaryData::footswitch_down_png, BinaryData::footswitch_down_pngSize), 1.0, Colours::transparentWhite,
             Image(), 1.0, Colours::transparentWhite,
             ImageCache::getFromMemory(BinaryData::footswitch_down_png, BinaryData::footswitch_down_pngSize), 1.0, Colours::transparentWhite,
+            0.0);
+    }
+    // Set On/Off cab graphic
+    if (processor.cab_state == 0) {
+        cabOnButton.setImages(true, true, true,
+            ImageCache::getFromMemory(BinaryData::cab_switch_off_png, BinaryData::cab_switch_off_pngSize), 1.0, Colours::transparentWhite,
+            Image(), 1.0, Colours::transparentWhite,
+            ImageCache::getFromMemory(BinaryData::cab_switch_off_png, BinaryData::cab_switch_off_pngSize), 1.0, Colours::transparentWhite,
+            0.0);
+    }
+    else {
+        cabOnButton.setImages(true, true, true,
+            ImageCache::getFromMemory(BinaryData::cab_switch_on_png, BinaryData::cab_switch_on_pngSize), 1.0, Colours::transparentWhite,
+            Image(), 1.0, Colours::transparentWhite,
+            ImageCache::getFromMemory(BinaryData::cab_switch_on_png, BinaryData::cab_switch_on_pngSize), 1.0, Colours::transparentWhite,
             0.0);
     }
 }

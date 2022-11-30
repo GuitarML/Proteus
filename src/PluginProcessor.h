@@ -17,9 +17,17 @@
 #define GAIN_NAME "Drive"
 #define MASTER_ID "level"
 #define MASTER_NAME "Level"
+#define BASS_ID "bass"
+#define BASS_NAME "Bass"
+#define MID_ID "mid"
+#define MID_NAME "Mid"
+#define TREBLE_ID "treble"
+#define TREBLE_NAME "Treble"
 
 #include <nlohmann/json.hpp>
 #include "RTNeuralLSTM.h"
+#include "Eq4Band.h"
+#include "CabSim.h"
 
 //==============================================================================
 /**
@@ -64,11 +72,14 @@ public:
     void getStateInformation (MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
+    void set_ampEQ(float bass_slider, float mid_slider, float treble_slider);
+
     // Files and configuration
     void loadConfig(File configFile);
 
     // Pedal/amp states
     int fw_state = 1;       // 0 = off, 1 = on
+    int cab_state = 1; // 0 = off, 1 = on
 
     File currentDirectory = File::getCurrentWorkingDirectory().getFullPathName();
     int current_model_index = 0;
@@ -91,8 +102,14 @@ public:
 
 private:
 
+    Eq4Band eq4band; // Amp EQ
+    Eq4Band eq4band2; // Amp EQ
+
     std::atomic<float>* driveParam = nullptr;
     std::atomic<float>* masterParam = nullptr;
+    std::atomic<float>* bassParam = nullptr;
+    std::atomic<float>* midParam = nullptr;
+    std::atomic<float>* trebleParam = nullptr;
 
     float previousDriveValue = 0.5;
     float previousMasterValue = 0.5;
@@ -104,6 +121,9 @@ private:
     dsp::ProcessorDuplicator<dsp::IIR::Filter<float>, dsp::IIR::Coefficients<float>> dcBlocker;
 
     chowdsp::ResampledProcess<chowdsp::ResamplingTypes::SRCResampler<>> resampler;
+
+    // IR processing
+    CabSim cabSimIRa;
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ProteusAudioProcessor)

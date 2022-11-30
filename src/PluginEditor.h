@@ -58,10 +58,14 @@ private:
     ComboBox modelSelect;
 
     // Overdrive Widgets
+    Slider ampBassKnob;
+    Slider ampMidKnob;
+    Slider ampTrebleKnob;
     Slider odDriveKnob;
     Slider odLevelKnob;
     ImageButton odFootSw;
     //ImageButton odLED;
+    ImageButton cabOnButton;
 
     
     // LookandFeels 
@@ -73,10 +77,14 @@ private:
  
     void odFootSwClicked();
     void modelSelectChanged();
+    void cabOnButtonClicked();
 
     bool model_loaded = false;
 
 public:
+    std::unique_ptr <AudioProcessorValueTreeState::SliderAttachment> bassSliderAttach;
+    std::unique_ptr <AudioProcessorValueTreeState::SliderAttachment> midSliderAttach;
+    std::unique_ptr <AudioProcessorValueTreeState::SliderAttachment> trebleSliderAttach;
     std::unique_ptr <AudioProcessorValueTreeState::SliderAttachment> driveSliderAttach;
     std::unique_ptr <AudioProcessorValueTreeState::SliderAttachment> masterSliderAttach;
  

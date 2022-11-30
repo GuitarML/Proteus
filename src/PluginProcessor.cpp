@@ -24,6 +24,9 @@ ProteusAudioProcessor::ProteusAudioProcessor()
     ),
 
     treeState(*this, nullptr, "PARAMETER", { std::make_unique<AudioParameterFloat>(GAIN_ID, GAIN_NAME, NormalisableRange<float>(0.0f, 1.0f, 0.01f), 0.5f),
+                        std::make_unique<AudioParameterFloat>(BASS_ID, BASS_NAME, NormalisableRange<float>(-8.0f, 8.0f, 0.01f), 0.0f),
+                        std::make_unique<AudioParameterFloat>(MID_ID, MID_NAME, NormalisableRange<float>(-8.0f, 8.0f, 0.01f), 0.0f),
+                        std::make_unique<AudioParameterFloat>(TREBLE_ID, TREBLE_NAME, NormalisableRange<float>(-8.0f, 8.0f, 0.01f), 0.0f),
                         std::make_unique<AudioParameterFloat>(MASTER_ID, MASTER_NAME, NormalisableRange<float>(0.0f, 1.0f, 0.01f), 0.5) })
 
     
@@ -31,8 +34,21 @@ ProteusAudioProcessor::ProteusAudioProcessor()
 {
     driveParam = treeState.getRawParameterValue (GAIN_ID);
     masterParam = treeState.getRawParameterValue (MASTER_ID);
+    bassParam = treeState.getRawParameterValue (BASS_ID);
+    midParam = treeState.getRawParameterValue (MID_ID);
+    trebleParam = treeState.getRawParameterValue (TREBLE_ID);
+
+    auto bassValue = static_cast<float> (bassParam->load());
+    auto midValue = static_cast<float> (midParam->load());
+    auto trebleValue = static_cast<float> (trebleParam->load());
+
+    eq4band.setParameters(bassValue, midValue, trebleValue, 0.0);
+    eq4band2.setParameters(bassValue, midValue, trebleValue, 0.0);
 
     pauseVolume = 3;
+
+    cabSimIRa.load(BinaryData::default_ir_wav, BinaryData::default_ir_wavSize);
+
 }
 
 ProteusAudioProcessor::~ProteusAudioProcessor()
@@ -123,6 +139,9 @@ void ProteusAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
     LSTM.reset();
     LSTM2.reset();
 
+    // Set up IR
+    cabSimIRa.prepare(spec);
+
 }
 
 void ProteusAudioProcessor::releaseResources()
@@ -162,10 +181,14 @@ void ProteusAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer
 
     auto driveValue = static_cast<float> (driveParam->load());
     auto masterValue = static_cast<float> (masterParam->load());
+    auto bassValue = static_cast<float> (bassParam->load());
+    auto midValue = static_cast<float> (midParam->load());
+    auto trebleValue = static_cast<float> (trebleParam->load());
 
     // Setup Audio Data
     const int numSamples = buffer.getNumSamples();
     const int numInputChannels = getTotalNumInputChannels();
+    const int sampleRate = getSampleRate();
 
     dsp::AudioBlock<float> block(buffer);
     dsp::ProcessContextReplacing<float> context(block);
@@ -215,6 +238,25 @@ void ProteusAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer
 
         dcBlocker.process(context);
 
+        for (int ch = 0; ch < buffer.getNumChannels(); ++ch)
+        {
+            // Apply EQ
+            if (ch == 0) {
+                eq4band.process(buffer.getReadPointer(0), buffer.getWritePointer(0), midiMessages, numSamples, numInputChannels, sampleRate);
+            
+            }
+            else if (ch == 1) {
+                eq4band2.process(buffer.getReadPointer(1), buffer.getWritePointer(1), midiMessages, numSamples, numInputChannels, sampleRate);
+            }
+        }
+
+        if (cab_state == 1) {
+            cabSimIRa.process(context); // Process IR a on channel 0
+            buffer.applyGain(2.0);
+        //} else {
+        //    buffer.applyGain(0.7);
+        }
+
         // Master Volume 
         // Apply ramped changes for gain smoothing
         if (masterValue == previousMasterValue)
@@ -263,6 +305,7 @@ void ProteusAudioProcessor::getStateInformation (MemoryBlock& destData)
     xml->setAttribute("folder", folder.getFullPathName().toStdString());
     xml->setAttribute("saved_model", saved_model.getFullPathName().toStdString());
     xml->setAttribute("current_model_index", current_model_index);
+    xml->setAttribute ("cab_state", cab_state);
     copyXmlToBinary (*xml, destData);
 
 }
@@ -282,6 +325,7 @@ void ProteusAudioProcessor::setStateInformation (const void* data, int sizeInByt
             fw_state = xmlState->getBoolAttribute ("fw_state");
             File temp_saved_model = xmlState->getStringAttribute("saved_model");
             saved_model = temp_saved_model;
+            cab_state = xmlState->getBoolAttribute ("cab_state");
 
             current_model_index = xmlState->getIntAttribute("current_model_index");
             File temp = xmlState->getStringAttribute("folder");
@@ -297,6 +341,11 @@ void ProteusAudioProcessor::setStateInformation (const void* data, int sizeInByt
     }
 }
 
+void ProteusAudioProcessor::set_ampEQ(float bass_slider, float mid_slider, float treble_slider)
+{
+    eq4band.setParameters(bass_slider, mid_slider, treble_slider, 0.0f);
+    eq4band2.setParameters(bass_slider, mid_slider, treble_slider, 0.0f);
+}
 
 void ProteusAudioProcessor::loadConfig(File configFile)
 {
