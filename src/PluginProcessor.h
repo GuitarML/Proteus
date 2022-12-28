@@ -66,7 +66,7 @@ public:
     void setStateInformation (const void* data, int sizeInBytes) override;
 
     // Files and configuration
-    void loadConfig(File configFile);
+    void loadConfig(const File& configFile);
 
     // Pedal/amp states
     int fw_state = 1;       // 0 = off, 1 = on

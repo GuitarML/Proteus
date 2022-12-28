@@ -270,7 +270,7 @@ void ProteusAudioProcessor::setStateInformation (const void* data, int sizeInByt
 }
 
 
-void ProteusAudioProcessor::loadConfig(File configFile)
+void ProteusAudioProcessor::loadConfig(const File& configFile)
 {
     this->suspendProcessing(true);
     pauseVolume = 3;
