@@ -320,7 +320,7 @@ void ProteusAudioProcessor::LSTMProcess(const AudioBuffer<float>& buffer, dsp::A
     else
     {
         const auto channel = block44k.getChannelPointer(0);
-        LSTM2.process(channel, driveValue, channel, static_cast<int>(block44k.getNumSamples()));
+        LSTM.process(channel, driveValue, channel, static_cast<int>(block44k.getNumSamples()));
     }
 }
 
