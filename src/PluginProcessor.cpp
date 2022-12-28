@@ -23,8 +23,8 @@ ProteusAudioProcessor::ProteusAudioProcessor()
 #endif
     ),
 
-    treeState(*this, nullptr, "PARAMETER", { std::make_unique<AudioParameterFloat>(GAIN_ID, GAIN_NAME, NormalisableRange<float>(0.0f, 1.0f, 0.01f), 0.5f),
-                        std::make_unique<AudioParameterFloat>(MASTER_ID, MASTER_NAME, NormalisableRange<float>(0.0f, 1.0f, 0.01f), 0.5) })
+    treeState(*this, nullptr, "PARAMETER", { std::make_unique<AudioParameterFloat>(GAIN_ID, GAIN_NAME, NormalisableRange(0.0f, 1.0f, 0.01f), 0.5f),
+                        std::make_unique<AudioParameterFloat>(MASTER_ID, MASTER_NAME, NormalisableRange(0.0f, 1.0f, 0.01f), 0.5) })
 
     
 #endif
@@ -116,7 +116,7 @@ void ProteusAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
 
 
     dsp::ProcessSpec specMono { sampleRate, static_cast<uint32> (samplesPerBlock), 1 };
-    dsp::ProcessSpec spec{ sampleRate, static_cast<uint32> (samplesPerBlock), 2 };
+    const dsp::ProcessSpec spec{ sampleRate, static_cast<uint32> (samplesPerBlock), 2 };
 
     dcBlocker.prepare (spec); 
 
@@ -160,19 +160,14 @@ void ProteusAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer
 {
     ScopedNoDenormals noDenormals;
 
-    auto driveValue = static_cast<float> (driveParam->load());
-    auto masterValue = static_cast<float> (masterParam->load());
-
-    // Setup Audio Data
-    const int numSamples = buffer.getNumSamples();
-    const int numInputChannels = getTotalNumInputChannels();
+    const float driveValue = driveParam->load();
+    const float masterValue = masterParam->load();
 
     dsp::AudioBlock<float> block(buffer);
-    dsp::ProcessContextReplacing<float> context(block);
+    const dsp::ProcessContextReplacing context(block);
 
     // Overdrive Pedal ================================================================== 
     if (fw_state == 1 && model_loaded == true) {
-        
         if (conditioned == false) {
             // Apply ramped changes for gain smoothing
             if (driveValue == previousDriveValue)
@@ -180,37 +175,14 @@ void ProteusAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer
                 buffer.applyGain(driveValue*2.5);
             }
              else {
-                buffer.applyGainRamp(0, (int) buffer.getNumSamples(), previousDriveValue * 2.5, driveValue * 2.5);
+                buffer.applyGainRamp(0, buffer.getNumSamples(), previousDriveValue * 2.5, driveValue * 2.5);
                 previousDriveValue = driveValue;
             }
-            auto block44k = resampler.processIn(block);
-            for (int ch = 0; ch < buffer.getNumChannels(); ++ch)
-            {
-                // Apply LSTM model
-                if (ch == 0) {
-                    LSTM.process(block44k.getChannelPointer(0), block44k.getChannelPointer(0), (int)block44k.getNumSamples());
-                }
-                else if (ch == 1) {
-                    LSTM2.process(block44k.getChannelPointer(1), block44k.getChannelPointer(1), (int)block44k.getNumSamples());
-                }
-            }
-            resampler.processOut(block44k, block);
+
+            LSTMProcess(buffer, block, driveValue);
         } else {
             buffer.applyGain(1.5); // Apply default boost to help sound
-            // resample to target sample rate
-            
-            auto block44k = resampler.processIn(block);
-            for (int ch = 0; ch < buffer.getNumChannels(); ++ch)
-            {
-                // Apply LSTM model
-                if (ch == 0) {
-                    LSTM.process(block44k.getChannelPointer(0), driveValue, block44k.getChannelPointer(0), (int)block44k.getNumSamples());
-                }
-                else if (ch == 1) {
-                    LSTM2.process(block44k.getChannelPointer(1), driveValue, block44k.getChannelPointer(1), (int)block44k.getNumSamples());
-                }
-            }
-            resampler.processOut(block44k, block);
+            LSTMProcess(buffer, block, driveValue);
         }
 
         dcBlocker.process(context);
@@ -222,7 +194,7 @@ void ProteusAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer
             buffer.applyGain(masterValue);
         }
         else {
-            buffer.applyGainRamp(0, (int) buffer.getNumSamples(), previousMasterValue, masterValue);
+            buffer.applyGainRamp(0, buffer.getNumSamples(), previousMasterValue, masterValue);
             previousMasterValue = masterValue;
         }
 
@@ -231,9 +203,9 @@ void ProteusAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer
             if (pauseVolume > 2)
                 buffer.applyGain(0.0);
             else if (pauseVolume == 2)
-                buffer.applyGainRamp(0, (int)buffer.getNumSamples(), 0, masterValue / 2);
+                buffer.applyGainRamp(0, buffer.getNumSamples(), 0, masterValue / 2);
             else
-                buffer.applyGainRamp(0, (int)buffer.getNumSamples(), masterValue / 2, masterValue);
+                buffer.applyGainRamp(0, buffer.getNumSamples(), masterValue / 2, masterValue);
             pauseVolume -= 1;
         }
     }
@@ -256,9 +228,9 @@ void ProteusAudioProcessor::getStateInformation (MemoryBlock& destData)
     // You should use this method to store your parameters in the memory block.
     // You could do that either as raw data, or use the XML or ValueTree classes
     // as intermediaries to make it easy to save and load complex data.
-    
-    auto state = treeState.copyState();
-    std::unique_ptr<XmlElement> xml (state.createXml());
+
+    const auto state = treeState.copyState();
+    const std::unique_ptr xml (state.createXml());
     xml->setAttribute ("fw_state", fw_state);
     xml->setAttribute("folder", folder.getFullPathName().toStdString());
     xml->setAttribute("saved_model", saved_model.getFullPathName().toStdString());
@@ -272,19 +244,19 @@ void ProteusAudioProcessor::setStateInformation (const void* data, int sizeInByt
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
 
-    std::unique_ptr<juce::XmlElement> xmlState (getXmlFromBinary (data, sizeInBytes));
+    const std::unique_ptr xmlState (getXmlFromBinary (data, sizeInBytes));
 
-    if (xmlState.get() != nullptr)
+    if (xmlState != nullptr)
     {
         if (xmlState->hasTagName (treeState.state.getType()))
         {
-            treeState.replaceState (juce::ValueTree::fromXml (*xmlState));
+            treeState.replaceState (ValueTree::fromXml (*xmlState));
             fw_state = xmlState->getBoolAttribute ("fw_state");
-            File temp_saved_model = xmlState->getStringAttribute("saved_model");
+            const File temp_saved_model = xmlState->getStringAttribute("saved_model");
             saved_model = temp_saved_model;
 
             current_model_index = xmlState->getIntAttribute("current_model_index");
-            File temp = xmlState->getStringAttribute("folder");
+            const File temp = xmlState->getStringAttribute("folder");
             folder = temp;
             if (auto* editor = dynamic_cast<ProteusAudioProcessorEditor*> (getActiveEditor()))
                 editor->resetImages();
@@ -298,11 +270,11 @@ void ProteusAudioProcessor::setStateInformation (const void* data, int sizeInByt
 }
 
 
-void ProteusAudioProcessor::loadConfig(File configFile)
+void ProteusAudioProcessor::loadConfig(const File& configFile)
 {
     this->suspendProcessing(true);
     pauseVolume = 3;
-    String path = configFile.getFullPathName();
+    const String& path = configFile.getFullPathName();
     char_filename = path.toUTF8();
 
     LSTM.reset();
@@ -322,6 +294,33 @@ void ProteusAudioProcessor::loadConfig(File configFile)
     this->suspendProcessing(false);
 }
 
+void ProteusAudioProcessor::LSTMProcess(const AudioBuffer<float>& buffer, dsp::AudioBlock<float> block, float driveValue)
+{
+    const auto block44k = resampler.processIn(block);
+    
+    if (buffer.getNumChannels() == 2)
+    {
+        concurrency::parallel_invoke(
+            [&]
+            {
+                const auto channel = block44k.getChannelPointer(0);
+                LSTM.process(channel, driveValue, channel, static_cast<int>(block44k.getNumSamples()));
+            },
+            [&]
+            {
+                const auto channel = block44k.getChannelPointer(1);
+                LSTM2.process(channel, driveValue, channel, static_cast<int>(block44k.getNumSamples()));
+            }
+        );
+    }
+    else
+    {
+        const auto channel = block44k.getChannelPointer(0);
+        LSTM.process(channel, driveValue, channel, static_cast<int>(block44k.getNumSamples()));
+    }
+
+    resampler.processOut(block44k, block);
+}
 
 
 //==============================================================================

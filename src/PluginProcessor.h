@@ -19,6 +19,7 @@
 #define MASTER_NAME "Level"
 
 #include <nlohmann/json.hpp>
+#include <ppl.h>
 #include "RTNeuralLSTM.h"
 
 //==============================================================================
@@ -65,7 +66,7 @@ public:
     void setStateInformation (const void* data, int sizeInBytes) override;
 
     // Files and configuration
-    void loadConfig(File configFile);
+    void loadConfig(const File& configFile);
 
     // Pedal/amp states
     int fw_state = 1;       // 0 = off, 1 = on
@@ -91,6 +92,8 @@ public:
 
 private:
 
+	void LSTMProcess(const AudioBuffer<float>& buffer, dsp::AudioBlock<float> block, float driveValue);
+	
     std::atomic<float>* driveParam = nullptr;
     std::atomic<float>* masterParam = nullptr;
 
