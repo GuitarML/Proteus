@@ -168,10 +168,6 @@ void ProteusAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer
 
     // Overdrive Pedal ================================================================== 
     if (fw_state == 1 && model_loaded == true) {
-
-        // resample to target sample rate
-        auto block44k = resampler.processIn(block);
-        
         if (conditioned == false) {
             // Apply ramped changes for gain smoothing
             if (driveValue == previousDriveValue)
@@ -183,13 +179,11 @@ void ProteusAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer
                 previousDriveValue = driveValue;
             }
 
-            LSTMProcess(buffer, block44k, driveValue);
+            LSTMProcess(buffer, block, driveValue);
         } else {
             buffer.applyGain(1.5); // Apply default boost to help sound
-            LSTMProcess(buffer, block44k, driveValue);
+            LSTMProcess(buffer, block, driveValue);
         }
-
-        resampler.processOut(block44k, block);
 
         dcBlocker.process(context);
 
@@ -300,8 +294,10 @@ void ProteusAudioProcessor::loadConfig(File configFile)
     this->suspendProcessing(false);
 }
 
-void ProteusAudioProcessor::LSTMProcess(const AudioBuffer<float>& buffer, dsp::AudioBlock<float> block44k, float driveValue)
+void ProteusAudioProcessor::LSTMProcess(const AudioBuffer<float>& buffer, dsp::AudioBlock<float> block, float driveValue)
 {
+    auto block44k = resampler.processIn(block);
+    
     if (buffer.getNumChannels() == 2)
     {
         concurrency::parallel_invoke(
@@ -322,6 +318,8 @@ void ProteusAudioProcessor::LSTMProcess(const AudioBuffer<float>& buffer, dsp::A
         const auto channel = block44k.getChannelPointer(0);
         LSTM.process(channel, driveValue, channel, static_cast<int>(block44k.getNumSamples()));
     }
+
+    resampler.processOut(block44k, block);
 }
 
 

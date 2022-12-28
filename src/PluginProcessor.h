@@ -92,7 +92,7 @@ public:
 
 private:
 
-	void LSTMProcess(const AudioBuffer<float>& buffer, dsp::AudioBlock<float> block44k, float driveValue);
+	void LSTMProcess(const AudioBuffer<float>& buffer, dsp::AudioBlock<float> block, float driveValue);
 	
     std::atomic<float>* driveParam = nullptr;
     std::atomic<float>* masterParam = nullptr;
