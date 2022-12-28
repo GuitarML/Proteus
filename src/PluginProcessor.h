@@ -19,6 +19,7 @@
 #define MASTER_NAME "Level"
 
 #include <nlohmann/json.hpp>
+#include <ppl.h>
 #include "RTNeuralLSTM.h"
 
 //==============================================================================
@@ -91,6 +92,8 @@ public:
 
 private:
 
+	void LSTMProcess(const AudioBuffer<float>& buffer, dsp::AudioBlock<float> block44k, float driveValue);
+	
     std::atomic<float>* driveParam = nullptr;
     std::atomic<float>* masterParam = nullptr;
 

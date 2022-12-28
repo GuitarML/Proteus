@@ -160,18 +160,17 @@ void ProteusAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer
 {
     ScopedNoDenormals noDenormals;
 
-    auto driveValue = static_cast<float> (driveParam->load());
-    auto masterValue = static_cast<float> (masterParam->load());
-
-    // Setup Audio Data
-    const int numSamples = buffer.getNumSamples();
-    const int numInputChannels = getTotalNumInputChannels();
+    auto driveValue = driveParam->load();
+    auto masterValue = masterParam->load();
 
     dsp::AudioBlock<float> block(buffer);
-    dsp::ProcessContextReplacing<float> context(block);
+    dsp::ProcessContextReplacing context(block);
 
     // Overdrive Pedal ================================================================== 
     if (fw_state == 1 && model_loaded == true) {
+
+        // resample to target sample rate
+        auto block44k = resampler.processIn(block);
         
         if (conditioned == false) {
             // Apply ramped changes for gain smoothing
@@ -180,38 +179,17 @@ void ProteusAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer
                 buffer.applyGain(driveValue*2.5);
             }
              else {
-                buffer.applyGainRamp(0, (int) buffer.getNumSamples(), previousDriveValue * 2.5, driveValue * 2.5);
+                buffer.applyGainRamp(0, buffer.getNumSamples(), previousDriveValue * 2.5, driveValue * 2.5);
                 previousDriveValue = driveValue;
             }
-            auto block44k = resampler.processIn(block);
-            for (int ch = 0; ch < buffer.getNumChannels(); ++ch)
-            {
-                // Apply LSTM model
-                if (ch == 0) {
-                    LSTM.process(block44k.getChannelPointer(0), block44k.getChannelPointer(0), (int)block44k.getNumSamples());
-                }
-                else if (ch == 1) {
-                    LSTM2.process(block44k.getChannelPointer(1), block44k.getChannelPointer(1), (int)block44k.getNumSamples());
-                }
-            }
-            resampler.processOut(block44k, block);
+
+            LSTMProcess(buffer, block44k, driveValue);
         } else {
             buffer.applyGain(1.5); // Apply default boost to help sound
-            // resample to target sample rate
-            
-            auto block44k = resampler.processIn(block);
-            for (int ch = 0; ch < buffer.getNumChannels(); ++ch)
-            {
-                // Apply LSTM model
-                if (ch == 0) {
-                    LSTM.process(block44k.getChannelPointer(0), driveValue, block44k.getChannelPointer(0), (int)block44k.getNumSamples());
-                }
-                else if (ch == 1) {
-                    LSTM2.process(block44k.getChannelPointer(1), driveValue, block44k.getChannelPointer(1), (int)block44k.getNumSamples());
-                }
-            }
-            resampler.processOut(block44k, block);
+            LSTMProcess(buffer, block44k, driveValue);
         }
+
+        resampler.processOut(block44k, block);
 
         dcBlocker.process(context);
 
@@ -222,7 +200,7 @@ void ProteusAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer
             buffer.applyGain(masterValue);
         }
         else {
-            buffer.applyGainRamp(0, (int) buffer.getNumSamples(), previousMasterValue, masterValue);
+            buffer.applyGainRamp(0, buffer.getNumSamples(), previousMasterValue, masterValue);
             previousMasterValue = masterValue;
         }
 
@@ -231,9 +209,9 @@ void ProteusAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer
             if (pauseVolume > 2)
                 buffer.applyGain(0.0);
             else if (pauseVolume == 2)
-                buffer.applyGainRamp(0, (int)buffer.getNumSamples(), 0, masterValue / 2);
+                buffer.applyGainRamp(0, buffer.getNumSamples(), 0, masterValue / 2);
             else
-                buffer.applyGainRamp(0, (int)buffer.getNumSamples(), masterValue / 2, masterValue);
+                buffer.applyGainRamp(0, buffer.getNumSamples(), masterValue / 2, masterValue);
             pauseVolume -= 1;
         }
     }
@@ -322,6 +300,29 @@ void ProteusAudioProcessor::loadConfig(File configFile)
     this->suspendProcessing(false);
 }
 
+void ProteusAudioProcessor::LSTMProcess(const AudioBuffer<float>& buffer, dsp::AudioBlock<float> block44k, float driveValue)
+{
+    if (buffer.getNumChannels() == 2)
+    {
+        concurrency::parallel_invoke(
+            [&]
+            {
+                const auto channel = block44k.getChannelPointer(0);
+                LSTM.process(channel, driveValue, channel, static_cast<int>(block44k.getNumSamples()));
+            },
+            [&]
+            {
+                const auto channel = block44k.getChannelPointer(1);
+                LSTM2.process(channel, driveValue, channel, static_cast<int>(block44k.getNumSamples()));
+            }
+        );
+    }
+    else
+    {
+        const auto channel = block44k.getChannelPointer(0);
+        LSTM2.process(channel, driveValue, channel, static_cast<int>(block44k.getNumSamples()));
+    }
+}
 
 
 //==============================================================================
