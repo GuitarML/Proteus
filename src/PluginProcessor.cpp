@@ -23,8 +23,8 @@ ProteusAudioProcessor::ProteusAudioProcessor()
 #endif
     ),
 
-    treeState(*this, nullptr, "PARAMETER", { std::make_unique<AudioParameterFloat>(GAIN_ID, GAIN_NAME, NormalisableRange<float>(0.0f, 1.0f, 0.01f), 0.5f),
-                        std::make_unique<AudioParameterFloat>(MASTER_ID, MASTER_NAME, NormalisableRange<float>(0.0f, 1.0f, 0.01f), 0.5) })
+    treeState(*this, nullptr, "PARAMETER", { std::make_unique<AudioParameterFloat>(GAIN_ID, GAIN_NAME, NormalisableRange(0.0f, 1.0f, 0.01f), 0.5f),
+                        std::make_unique<AudioParameterFloat>(MASTER_ID, MASTER_NAME, NormalisableRange(0.0f, 1.0f, 0.01f), 0.5) })
 
     
 #endif
@@ -116,7 +116,7 @@ void ProteusAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
 
 
     dsp::ProcessSpec specMono { sampleRate, static_cast<uint32> (samplesPerBlock), 1 };
-    dsp::ProcessSpec spec{ sampleRate, static_cast<uint32> (samplesPerBlock), 2 };
+    const dsp::ProcessSpec spec{ sampleRate, static_cast<uint32> (samplesPerBlock), 2 };
 
     dcBlocker.prepare (spec); 
 
@@ -160,11 +160,11 @@ void ProteusAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer
 {
     ScopedNoDenormals noDenormals;
 
-    auto driveValue = driveParam->load();
-    auto masterValue = masterParam->load();
+    const float driveValue = driveParam->load();
+    const float masterValue = masterParam->load();
 
     dsp::AudioBlock<float> block(buffer);
-    dsp::ProcessContextReplacing context(block);
+    const dsp::ProcessContextReplacing context(block);
 
     // Overdrive Pedal ================================================================== 
     if (fw_state == 1 && model_loaded == true) {
@@ -228,9 +228,9 @@ void ProteusAudioProcessor::getStateInformation (MemoryBlock& destData)
     // You should use this method to store your parameters in the memory block.
     // You could do that either as raw data, or use the XML or ValueTree classes
     // as intermediaries to make it easy to save and load complex data.
-    
-    auto state = treeState.copyState();
-    std::unique_ptr<XmlElement> xml (state.createXml());
+
+    const auto state = treeState.copyState();
+    const std::unique_ptr xml (state.createXml());
     xml->setAttribute ("fw_state", fw_state);
     xml->setAttribute("folder", folder.getFullPathName().toStdString());
     xml->setAttribute("saved_model", saved_model.getFullPathName().toStdString());
@@ -244,19 +244,19 @@ void ProteusAudioProcessor::setStateInformation (const void* data, int sizeInByt
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
 
-    std::unique_ptr<juce::XmlElement> xmlState (getXmlFromBinary (data, sizeInBytes));
+    const std::unique_ptr xmlState (getXmlFromBinary (data, sizeInBytes));
 
-    if (xmlState.get() != nullptr)
+    if (xmlState != nullptr)
     {
         if (xmlState->hasTagName (treeState.state.getType()))
         {
-            treeState.replaceState (juce::ValueTree::fromXml (*xmlState));
+            treeState.replaceState (ValueTree::fromXml (*xmlState));
             fw_state = xmlState->getBoolAttribute ("fw_state");
-            File temp_saved_model = xmlState->getStringAttribute("saved_model");
+            const File temp_saved_model = xmlState->getStringAttribute("saved_model");
             saved_model = temp_saved_model;
 
             current_model_index = xmlState->getIntAttribute("current_model_index");
-            File temp = xmlState->getStringAttribute("folder");
+            const File temp = xmlState->getStringAttribute("folder");
             folder = temp;
             if (auto* editor = dynamic_cast<ProteusAudioProcessorEditor*> (getActiveEditor()))
                 editor->resetImages();
@@ -274,7 +274,7 @@ void ProteusAudioProcessor::loadConfig(File configFile)
 {
     this->suspendProcessing(true);
     pauseVolume = 3;
-    String path = configFile.getFullPathName();
+    const String& path = configFile.getFullPathName();
     char_filename = path.toUTF8();
 
     LSTM.reset();
@@ -296,7 +296,7 @@ void ProteusAudioProcessor::loadConfig(File configFile)
 
 void ProteusAudioProcessor::LSTMProcess(const AudioBuffer<float>& buffer, dsp::AudioBlock<float> block, float driveValue)
 {
-    auto block44k = resampler.processIn(block);
+    const auto block44k = resampler.processIn(block);
     
     if (buffer.getNumChannels() == 2)
     {
