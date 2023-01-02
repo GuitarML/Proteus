@@ -49,7 +49,7 @@ private:
     // LookandFeels and Graphics
     Image background_on = ImageCache::getFromMemory(BinaryData::background_on_jpg, BinaryData::background_on_jpgSize);
     Image background_on_blue = ImageCache::getFromMemory(BinaryData::background_on_blue_jpg, BinaryData::background_on_blue_jpgSize);
-    Image background_off = ImageCache::getFromMemory(BinaryData::background_off_jpg, BinaryData::background_off_jpgSize);
+    //Image background_off = ImageCache::getFromMemory(BinaryData::background_off_jpg, BinaryData::background_off_jpgSize);
 
     // Global Widgets
     Label modelLabel;
@@ -63,13 +63,15 @@ private:
     Slider ampTrebleKnob;
     Slider odDriveKnob;
     Slider odLevelKnob;
-    ImageButton odFootSw;
+    //ImageButton odFootSw;
     //ImageButton odLED;
     ImageButton cabOnButton;
 
     
     // LookandFeels 
-    myLookAndFeel blackHexKnobLAF;
+    //myLookAndFeel blackHexKnobLAF;
+    myLookAndFeel bigKnobLAF;
+    myLookAndFeel smallKnobLAF;
 
     virtual void sliderValueChanged(Slider* slider) override;
 

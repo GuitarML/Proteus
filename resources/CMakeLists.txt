@@ -8,6 +8,8 @@ juce_add_binary_data(BinaryData SOURCES
     default_ir.wav
     cab_switch_off.png
     cab_switch_on.png
+    big_knob.png
+    small_knob.png
 
 )
 
