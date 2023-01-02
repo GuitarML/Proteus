@@ -1,7 +1,4 @@
 juce_add_binary_data(BinaryData SOURCES
-    footswitch_down.png
-    footswitch_up.png
-    knob_hex.png
     background_on.jpg
     background_on_blue.jpg
     background_off.jpg
