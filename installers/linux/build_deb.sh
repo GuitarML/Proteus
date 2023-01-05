@@ -3,7 +3,7 @@
 
 # Set the app name and version here
 app_name=Proteus
-version=1.1
+version=1.2
 
 
 # 1. Create the package directory structure and control file

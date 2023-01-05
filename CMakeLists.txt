@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.15)
 set(CMAKE_OSX_DEPLOYMENT_TARGET "10.12" CACHE STRING "Minimum OS X deployment target")
-project(Proteus VERSION 1.1.0)
+project(Proteus VERSION 1.2.0)
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -9,7 +9,7 @@ include_directories(modules)
 
 juce_set_aax_sdk_path(C:/SDKs/AAX_SDK/)
 
-set(JUCE_FORMATS AU VST3)
+set(JUCE_FORMATS AU VST3 Standalone)
 
 # Build LV2 only on Linux
 if(UNIX AND NOT APPLE)
