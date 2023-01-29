@@ -20,10 +20,10 @@ jobs:
         sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 9
         sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-9 9
     - name: Get latest CMake
-      uses: lukka/get-cmake
+      uses: lukka/get-cmake@latest
 
     - name: Checkout code
-      uses: actions/checkout
+      uses: actions/checkout@latest
       with:
         submodules: recursive
 
@@ -40,40 +40,39 @@ jobs:
     #  if: runner.os == 'Windows'
     #  run: bash validate.sh
 
-    - uses: actions/upload-artifact
       if: runner.os == 'Linux'
       with:
         name: proteus-linux-x64-lv2
         path: /home/runner/work/Proteus/Proteus/build/Proteus_artefacts/LV2/Proteus.lv2
-    - uses: actions/upload-artifact
+    - uses: actions/upload-artifact@latest
       if: runner.os == 'Linux'
       with:
         name: proteus-linux-x64-vst3.so
         path: /home/runner/work/Proteus/Proteus/build/Proteus_artefacts/VST3/Proteus.vst3/Contents/x86_64-linux/Proteus.so
-    - uses: actions/upload-artifact
+    - uses: actions/upload-artifact@latest
       if: runner.os == 'Linux'
       with:
         name: proteus-linux-x64-standalone
         path: /home/runner/work/Proteus/Proteus/build/Proteus_artefacts/Standalone/Proteus
 
     # couldn't find .vst3
-    - uses: actions/upload-artifact
+    - uses: actions/upload-artifact@latest
       if: runner.os == 'Windows'
       with:
         name: proteus-windows-x64-shared.lib
         path: D:\a\Proteus\Proteus\build\Proteus_artefacts\Release\Proteus_SharedCode.lib
 
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@latest
       if: runner.os == 'macOS'
       with:
         name: proteus-mac-x64-au
         path: /Users/runner/work/Proteus/Proteus/build/Proteus_artefacts/AU/Proteus.component/Contents/MacOS/Proteus
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@latest
       if: runner.os == 'macOS'
       with:
         name: proteus-mac-x64-vst3
         path: /Users/runner/work/Proteus/Proteus/build/Proteus_artefacts/VST3/Proteus.vst3/Contents/MacOS/Proteus
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@latest
       if: runner.os == 'macOS'
       with:
         name: proteus-mac-x64-standalone
