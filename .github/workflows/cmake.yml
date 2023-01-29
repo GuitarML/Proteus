@@ -52,6 +52,11 @@ jobs:
     - uses: actions/upload-artifact@latest
       if: runner.os == 'Linux'
       with:
+        name: proteus-linux-x64-clap
+        path: /home/runner/work/Proteus/Proteus/build/Proteus_artefacts/CLAP/Proteus.clap
+    - uses: actions/upload-artifact@latest
+      if: runner.os == 'Linux'
+      with:
         name: proteus-linux-x64-standalone
         path: /home/runner/work/Proteus/Proteus/build/Proteus_artefacts/Standalone/Proteus
 
@@ -72,6 +77,11 @@ jobs:
       with:
         name: proteus-mac-x64-vst3
         path: /Users/runner/work/Proteus/Proteus/build/Proteus_artefacts/VST3/Proteus.vst3/Contents/MacOS/Proteus
+    - uses: actions/upload-artifact@latest
+      if: runner.os == 'macOS'
+      with:
+        name: proteus-max-x64-clap
+        path: /Users/runner/work/Proteus/Proteus/build/Proteus_artefacts/CLAP/Proteus.clap
     - uses: actions/upload-artifact@latest
       if: runner.os == 'macOS'
       with:

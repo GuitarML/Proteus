@@ -11,12 +11,12 @@ set(CMAKE_OSX_DEPLOYMENT_TARGET "10.12" CACHE STRING "Minimum OS X deployment ta
 option(BUILD_AU "" APPLE)
 option(BUILD_AU3 "" APPLE)
 
-# VST 2 requires a separate SDK so it's omitted
-option(BUILD_VST3 "" ON)
+option(BUILD_VST3 "" ON) # VST 2 requires a separate SDK so it's omitted
 
 set(LINUX CMAKE_SYSTEM_NAME STREQUAL "Linux")
 option(BUILD_LV2 "" LINUX)
 
+option(BUILD_CLAP "" ON)
 option(BUILD_AAX "" ON)
 option(BUILD_STANDALONE "" ON)
 
@@ -45,6 +45,7 @@ endif()
 
 add_subdirectory(modules)
 include_directories(modules)
+add_subdirectory(modules/clap-juce-extensions)
 
 if (UNIX)
     set(LINK_FLAGS "${LINK_FLAGS} -Wl --as-needed")
@@ -103,6 +104,14 @@ juce_add_plugin(Proteus
     AAX_CATEGORY AAX_ePlugInCategory_Harmonic
     MICROPHONE_PERMISSION_ENABLED TRUE
 )
+
+if (BUILD_CLAP)
+    clap_juce_extensions_plugin(TARGET Proteus
+        CLAP_ID "com.guitarml.proteus"
+        CLAP_FEATURES audio-effect filter)
+
+    add_custom_target(BuildCLAP ALL DEPENDS Proteus_CLAP)
+endif()
 
 juce_generate_juce_header(Proteus)
 
