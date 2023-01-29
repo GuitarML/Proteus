@@ -4,13 +4,14 @@ include(CheckIPOSupported)
 
 set(CMAKE_CXX_STANDARD 17)
 set (CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 set(CMAKE_OSX_DEPLOYMENT_TARGET "10.12" CACHE STRING "Minimum OS X deployment target")
 
 option(BUILD_AU "" APPLE)
 option(BUILD_AU3 "" APPLE)
 
-# VST 2 requires a separate SDK so it's omited
+# VST 2 requires a separate SDK so it's omitted
 option(BUILD_VST3 "" ON)
 
 set(LINUX CMAKE_SYSTEM_NAME STREQUAL "Linux")
@@ -45,6 +46,15 @@ endif()
 add_subdirectory(modules)
 include_directories(modules)
 
+if (UNIX)
+    set(LINK_FLAGS "${LINK_FLAGS} -Wl --as-needed")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror -Wextra -Wpedantic")
+
+    if (CMAKE_BUILD_TYPE STREQUAL "Release")
+        set(LINK_FLAGS "${LINK_FLAGS} -s")
+    endif()
+endif()
+
 set(JUCE_FORMATS "")
 
 if (BUILD_AU)
@@ -60,7 +70,7 @@ if (BUILD_VST3)
 endif()
 
 if (BUILD_LV2)
-    list(APPEND JUCE_FORMATS AU)
+    list(APPEND JUCE_FORMATS LV2)
 endif()
 
 if (BUILD_STANDALONE)
@@ -78,7 +88,7 @@ if (BUILD_AAX)
     endif()
 endif()
 
-message(STATUS "Building " ${JUCE_FORMATS})
+message(STATUS "Building ${JUCE_FORMATS}")
 
 juce_add_plugin(Proteus
     COMPANY_NAME GuitarML
@@ -94,7 +104,6 @@ juce_add_plugin(Proteus
     MICROPHONE_PERMISSION_ENABLED TRUE
 )
 
-# create JUCE header
 juce_generate_juce_header(Proteus)
 
 # add sources
@@ -110,16 +119,14 @@ target_compile_definitions(Proteus
     JUCE_USE_CURL=0
     JUCE_VST3_CAN_REPLACE_VST2=0
     JUCE_MODAL_LOOPS_PERMITTED=1
-    JUCE_PLUGINHOST_LADSPA=BUILD_LV2
+    # We do not set e.g. JUCE_PLUGINHOST_LADSPA=BUILD_LV so as we could re-run cmake without
+    # re-building all from scratch if we want to build LV2
     JUCE_USE_XINERAMA=0 # Use XRandr instead
 )
 
 target_link_libraries(Proteus PUBLIC juce::juce_recommended_lto_flags)
 target_link_libraries(Proteus PUBLIC juce::juce_recommended_config_flags)
-
-if (UNIX)
-    target_link_options(Proteus PRIVATE BEFORE -Wl,--as-needed)
-    target_compile_options(Proteus PRIVATE -Wall -Werror -Wextra -Wpedantic)
-endif()
-
 target_link_libraries(Proteus PUBLIC juce_plugin_modules)
+
+message(STATUS "CXX flags: ${CMAKE_CXX_FLAGS}")
+message(STATUS "Linker flags: ${LINK_FLAGS}")
