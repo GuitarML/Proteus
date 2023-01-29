@@ -13,9 +13,6 @@
 [submodule "modules/RTNeural"]
 	path = modules/RTNeural
 	url = https://github.com/jatinchowdhury18/RTNeural.git
-[submodule "clap-juce-extensions"]
-	path = clap-juce-extensions
-	url = https://github.com/free-audio/clap-juce-extensions.git
 [submodule "modules/clap-juce-extensions"]
 	path = modules/clap-juce-extensions
 	url = https://github.com/free-audio/clap-juce-extensions.git
