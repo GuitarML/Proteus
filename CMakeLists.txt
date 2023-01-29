@@ -1,41 +1,96 @@
 cmake_minimum_required(VERSION 3.15)
-set(CMAKE_OSX_DEPLOYMENT_TARGET "10.12" CACHE STRING "Minimum OS X deployment target")
 project(Proteus VERSION 1.2.0)
+include(CheckIPOSupported)
 
 set(CMAKE_CXX_STANDARD 17)
+set (CMAKE_CXX_STANDARD_REQUIRED ON)
+
+set(CMAKE_OSX_DEPLOYMENT_TARGET "10.12" CACHE STRING "Minimum OS X deployment target")
+
+option(BUILD_AU "" APPLE)
+option(BUILD_AU3 "" APPLE)
+
+# VST 2 requires a separate SDK so it's omited
+option(BUILD_VST3 "" ON)
+
+set(LINUX CMAKE_SYSTEM_NAME STREQUAL "Linux")
+option(BUILD_LV2 "" LINUX)
+
+option(BUILD_AAX "" ON)
+option(BUILD_STANDALONE "" ON)
+
+option(ENABLE_LTO "" ON)
+
+check_ipo_supported(RESULT result OUTPUT output)
+if(result AND ENABLE_LTO)
+    set_property(GLOBAL PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
+    message(STATUS "Enabled IPO")
+else()
+    message(WARNING "IPO is disabled or not supported. ${output}")
+endif()
+
+message(STATUS "Compiler:" ${CMAKE_CXX_COMPILER})
+# On Linux, clang is also GNU in CMAKE_CXX_COMPILER_ID
+# You need to pass compiler as CXX=/usr/bin/clang++ explicitly as on Linux
+# the default compiler is /usr/bin/c++, and cmake can't generally follow symlinks
+if (CMAKE_CXX_COMPILER MATCHES "clang")
+    option(CLANG_NEW_PASS_MANAGER "Enable experimental pass manager on modern clang builds" ON)
+
+    if (CLANG_NEW_PASS_MANAGER)
+        message(STATUS "Using clang experimental pass manager")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fexperimental-new-pass-manager")
+    endif()
+endif()
 
 add_subdirectory(modules)
 include_directories(modules)
 
-#juce_set_aax_sdk_path(C:/SDKs/AAX_SDK/)
+set(JUCE_FORMATS "")
 
-set(JUCE_FORMATS AU VST3 Standalone)
-
-# Build LV2 only on Linux
-if(UNIX AND NOT APPLE)
-    message(STATUS "Building LV2 plugin format")
-    list(APPEND JUCE_FORMATS LV2)
+if (BUILD_AU)
+    list(APPEND JUCE_FORMATS AU)
 endif()
 
-# Build AAX if SDK target exists
-if(TARGET juce_aax_sdk)
-    message(STATUS "Building AAX plugin format")
-    list(APPEND JUCE_FORMATS AAX)
+if (BUILD_AU3)
+    list(APPEND JUCE_FORMATS AUv3)
 endif()
+
+if (BUILD_VST3)
+    list(APPEND JUCE_FORMATS VST3)
+endif()
+
+if (BUILD_LV2)
+    list(APPEND JUCE_FORMATS AU)
+endif()
+
+if (BUILD_STANDALONE)
+    list(APPEND JUCE_FORMATS Standalone)
+endif()
+
+if (BUILD_AAX)
+    option(JUCE_AAX_SDK "Path to JUCE AAX SDK" "")
+    juce_set_aax_sdk_path(JUCE_AAX_SDK)
+
+    if (TARGET juce_aax_sdk)
+        list(APPEND JUCE_FORMATS AAX)
+    else()
+        message(FATAL "JUCE AAX SDK missing")
+    endif()
+endif()
+
+message(STATUS "Building " ${JUCE_FORMATS})
 
 juce_add_plugin(Proteus
     COMPANY_NAME GuitarML
     PLUGIN_MANUFACTURER_CODE GtML
-    PLUGIN_CODE Prt3 
+    PLUGIN_CODE Prt3
     FORMATS ${JUCE_FORMATS}
     ProductName "Proteus"
     LV2URI https://github.com/GuitarML/Proteus
     ICON_BIG resources/logo.png
-
     VST3_CATEGORIES Fx Distortion
     AU_MAIN_TYPE kAudioUnitType_Effect
     AAX_CATEGORY AAX_ePlugInCategory_Harmonic
-
     MICROPHONE_PERMISSION_ENABLED TRUE
 )
 
@@ -55,9 +110,16 @@ target_compile_definitions(Proteus
     JUCE_USE_CURL=0
     JUCE_VST3_CAN_REPLACE_VST2=0
     JUCE_MODAL_LOOPS_PERMITTED=1
+    JUCE_PLUGINHOST_LADSPA=BUILD_LV2
+    JUCE_USE_XINERAMA=0 # Use XRandr instead
 )
 
-target_link_libraries(Proteus PUBLIC
-    juce_plugin_modules
-)
+target_link_libraries(Proteus PUBLIC juce::juce_recommended_lto_flags)
+target_link_libraries(Proteus PUBLIC juce::juce_recommended_config_flags)
 
+if (UNIX)
+    target_link_options(Proteus PRIVATE BEFORE -Wl,--as-needed)
+    target_compile_options(Proteus PRIVATE -Wall -Werror -Wextra -Wpedantic)
+endif()
+
+target_link_libraries(Proteus PUBLIC juce_plugin_modules)

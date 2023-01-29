@@ -56,15 +56,17 @@ Note: Recommended to follow along with the video tutorials listed above.
 
 ```bash
 # Clone the repository
-$ git clone https://github.com/GuitarML/Proteus.git
+$ git clone https://github.com/GuitarML/Proteus.git --recursive --shallow-submodules
 $ cd Proteus
-
-# initialize and set up submodules
-$ git submodule update --init --recursive
 
 # build with CMake
 $ cmake -Bbuild
 $ cmake --build build --config Release
+
+# If you want to use clang on Linux, pass CC and CXX options explicitly, see
+# CMakeLists.txt:33
+CC=/usr/bin/clang-13 CXX=/usr/bin/clang++-13 cmake -B build <..>
+
 ```
 The binaries will be located in `Proteus/build/Proteus_artefacts/`
 
