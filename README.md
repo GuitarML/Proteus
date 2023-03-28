@@ -4,6 +4,8 @@
 
 Capture your own amps/pedals/plugins with Proteus. Can capture a drive/tone knob, or snapshot of the sound at a specific setting. Use the Proteus Capture Utility to quickly train models in the cloud with Colab. Effective for Amps/PreAmps, Distortion/Overdrive/Boost pedals (non-time based, no Reverb/Delay/Flange/Phaser). You can also capture a "rig", or combination of pedals/amp. This is similar in concept to a Kemper, Quad Cortex, or ToneX, in a free and open source plugin, with the ability to capture and share the sound of guitar gear normally costing hundreds or thousands of dollars. 
 
+Go directly to [Colab](https://colab.research.google.com/github/GuitarML/Automated-GuitarAmpModelling/blob/proteus-capture/ProteusCapture.ipynb) to start training models.
+
 ![app](https://github.com/GuitarML/Proteus/blob/main/resources/app_pic.jpg)
 
 - Checkout the video tutorials for creating your own models for the Proteus plugin.
