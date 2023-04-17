@@ -354,6 +354,7 @@ void ProteusAudioProcessorEditor::modelSelectChanged()
 
 void ProteusAudioProcessorEditor::resetImages()
 {
+    loadFromFolder();
     repaint();
     /*
     if (processor.fw_state == 0) {
