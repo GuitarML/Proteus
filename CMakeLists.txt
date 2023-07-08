@@ -17,7 +17,7 @@ set(LINUX CMAKE_SYSTEM_NAME STREQUAL "Linux")
 option(BUILD_LV2 "" LINUX)
 
 option(BUILD_CLAP "" ON)
-option(BUILD_AAX "" ON)
+option(BUILD_AAX "" OFF)
 option(BUILD_STANDALONE "" ON)
 
 option(ENABLE_LTO "" ON)
