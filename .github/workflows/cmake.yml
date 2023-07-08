@@ -38,28 +38,28 @@ jobs:
       if: runner.os == 'Linux'
       with:
         name: proteus-linux-x64-lv2
-        path: build/Proteus_artefacts/LV2/*.lv2
+        path: build/Proteus_artefacts/Release/LV2/Proteus.lv2
         if-no-files-found: error
 
     - uses: actions/upload-artifact@v3
       if: runner.os == 'Linux'
       with:
         name: proteus-linux-x64-vst3.so
-        path: build/Proteus_artefacts/VST3/Proteus.vst3/Contents/x86_64-linux/Proteus.so
+        path: build/Proteus_artefacts/Release/VST3/Proteus.vst3/Contents/x86_64-linux/Proteus.so
         if-no-files-found: error
 
     - uses: actions/upload-artifact@v3
       if: runner.os == 'Linux'
       with:
         name: proteus-linux-x64-clap.clap
-        path: build/Proteus_artefacts/CLAP/Proteus.clap
+        path: build/Proteus_artefacts/Release/CLAP/Proteus.clap
         if-no-files-found: error
 
     - uses: actions/upload-artifact@v3
       if: runner.os == 'Linux'
       with:
         name: proteus-linux-x64-standalone
-        path: /home/runner/work/Proteus/Proteus/build/Proteus_artefacts/Standalone/Proteus
+        path: build/Proteus_artefacts/Release/Standalone/Proteus
         if-no-files-found: error
 
     - uses: actions/upload-artifact@v3
