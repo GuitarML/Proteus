@@ -12,78 +12,94 @@ jobs:
         os: [ubuntu-latest, windows-latest, macOS-latest] 
     
     steps:
-    - name: Install Linux Deps
+    - name: install linux deps
       if: runner.os == 'Linux'
       run: |
         sudo apt-get update
         sudo apt install libasound2-dev libcurl4-openssl-dev libx11-dev libxinerama-dev libxext-dev libfreetype6-dev libwebkit2gtk-4.0-dev libglu1-mesa-dev libjack-jackd2-dev lv2-dev
-        sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 9
-        sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-9 9
-    - name: Get latest CMake
-      uses: lukka/get-cmake@latest
+    - uses: lukka/get-cmake@latest
 
-    - name: Checkout code
-      uses: actions/checkout@latest
-      with:
-        submodules: recursive
+    - uses: actions/checkout@latest
+      with: { submodules: recursive }
 
     - name: Configure
       shell: bash
       run: cmake -Bbuild
 
     - name: Build
-      shell: bash
-      run: cmake --build build --config Release --parallel 4
+      run: cmake --build build --config Release
     
     # Failing validation, fix
     #- name: Validate
     #  if: runner.os == 'Windows'
     #  run: bash validate.sh
 
+    - uses: actions/upload-artifact@latest
       if: runner.os == 'Linux'
       with:
         name: proteus-linux-x64-lv2
-        path: /home/runner/work/Proteus/Proteus/build/Proteus_artefacts/LV2/Proteus.lv2
+        path: Proteus/Proteus/build/Proteus_artefacts/LV2/*.lv2
+        if-no-files-found: error
+
     - uses: actions/upload-artifact@latest
       if: runner.os == 'Linux'
       with:
         name: proteus-linux-x64-vst3.so
-        path: /home/runner/work/Proteus/Proteus/build/Proteus_artefacts/VST3/Proteus.vst3/Contents/x86_64-linux/Proteus.so
+        path: Proteus/Proteus/build/Proteus_artefacts/VST3/Proteus.vst3/Contents/x86_64-linux/Proteus.so
+        if-no-files-found: error
+
     - uses: actions/upload-artifact@latest
       if: runner.os == 'Linux'
       with:
-        name: proteus-linux-x64-clap
+        name: proteus-linux-x64-clap.clap
         path: /home/runner/work/Proteus/Proteus/build/Proteus_artefacts/CLAP/Proteus.clap
+        if-no-files-found: error
+
     - uses: actions/upload-artifact@latest
       if: runner.os == 'Linux'
       with:
         name: proteus-linux-x64-standalone
         path: /home/runner/work/Proteus/Proteus/build/Proteus_artefacts/Standalone/Proteus
+        if-no-files-found: error
 
-    # couldn't find .vst3
     - uses: actions/upload-artifact@latest
       if: runner.os == 'Windows'
       with:
         name: proteus-windows-x64-shared.lib
         path: D:\a\Proteus\Proteus\build\Proteus_artefacts\Release\Proteus_SharedCode.lib
+        if-no-files-found: error
+
+    - uses: actions/upload-artifact@latest
+      if: runner.os == 'Windows'
+      with:
+        name: proteus-windows-x64-vst3.dll
+        path: D:\a\Proteus\Proteus\build\Proteus_artefacts\Release\Proteus.dll
+        if-no-files-found: error
 
     - uses: actions/upload-artifact@latest
       if: runner.os == 'macOS'
       with:
         name: proteus-mac-x64-au
-        path: /Users/runner/work/Proteus/Proteus/build/Proteus_artefacts/AU/Proteus.component/Contents/MacOS/Proteus
+        path: Proteus/Proteus/build/Proteus_artefacts/AU/Proteus.component/Contents/MacOS/Proteus
+        if-no-files-found: error
+
     - uses: actions/upload-artifact@latest
       if: runner.os == 'macOS'
       with:
         name: proteus-mac-x64-vst3
-        path: /Users/runner/work/Proteus/Proteus/build/Proteus_artefacts/VST3/Proteus.vst3/Contents/MacOS/Proteus
+        path: Proteus/Proteus/build/Proteus_artefacts/VST3/Proteus.vst3/Contents/MacOS/Proteus
+        if-no-files-found: error
+
     - uses: actions/upload-artifact@latest
       if: runner.os == 'macOS'
       with:
-        name: proteus-max-x64-clap
-        path: /Users/runner/work/Proteus/Proteus/build/Proteus_artefacts/CLAP/Proteus.clap
+        name: proteus-mac-x64-clap.clap
+        path: Proteus/Proteus/build/Proteus_artefacts/CLAP/Proteus.clap
+        if-no-files-found: error
+
     - uses: actions/upload-artifact@latest
       if: runner.os == 'macOS'
       with:
         name: proteus-mac-x64-standalone
-        path: /Users/runner/work/Proteus/Proteus/build/Proteus_artefacts/Standalone/Proteus.app/Contents/MacOS/Proteus
+        path: Proteus/Proteus/build/Proteus_artefacts/Standalone/Proteus.app/Contents/MacOS/Proteus
+        if-no-files-found: error
