@@ -13,7 +13,7 @@ option(BUILD_AU3 "" APPLE)
 
 option(BUILD_VST3 "" ON) # VST 2 requires a separate SDK so it's omitted
 
-set(LINUX CMAKE_SYSTEM_NAME STREQUAL "Linux")
+set(LINUX UNIX AND NOT APPLE)
 option(BUILD_LV2 "" LINUX)
 
 option(BUILD_CLAP "" ON)
