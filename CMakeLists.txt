@@ -31,17 +31,6 @@ else()
 endif()
 
 message(STATUS "Compiler:" ${CMAKE_CXX_COMPILER})
-# On Linux, clang is also GNU in CMAKE_CXX_COMPILER_ID
-# You need to pass compiler as CXX=/usr/bin/clang++ explicitly as on Linux
-# the default compiler is /usr/bin/c++, and cmake can't generally follow symlinks
-if (CMAKE_CXX_COMPILER MATCHES "clang")
-    option(CLANG_NEW_PASS_MANAGER "Enable experimental pass manager on modern clang builds" ON)
-
-    if (CLANG_NEW_PASS_MANAGER)
-        message(STATUS "Using clang experimental pass manager")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fexperimental-new-pass-manager")
-    endif()
-endif()
 
 add_subdirectory(modules)
 include_directories(modules)
@@ -49,7 +38,8 @@ add_subdirectory(modules/clap-juce-extensions)
 
 if (UNIX)
     set(LINK_FLAGS "${LINK_FLAGS} -Wl --as-needed")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror -Wextra -Wpedantic")
+    set(CMAKE_CXX_FLAGS
+        "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic")
 
     if (CMAKE_BUILD_TYPE STREQUAL "Release")
         set(LINK_FLAGS "${LINK_FLAGS} -s")

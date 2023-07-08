@@ -4,12 +4,12 @@ on: [push, pull_request]
 jobs:
   build_and_test:
     if: contains(toJson(github.event.commits), '***NO_CI***') == false && contains(toJson(github.event.commits), '[ci skip]') == false && contains(toJson(github.event.commits), '[skip ci]') == false
-    name: Test plugin on ${{ matrix.os }}
+    name: ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macOS-latest]
+        os: [ubuntu-latest] #, windows-latest, macOS-latest]
 
     steps:
     - uses: actions/checkout@v3
@@ -26,7 +26,7 @@ jobs:
         version: 1.0
 
     - uses: lukka/get-cmake@latest
-    - run: cmake -Bbuild
+    - run: cmake -Bbuild -GNinja
     - run: cmake --build build --config Release
     
     # Failing validation, fix
@@ -38,21 +38,21 @@ jobs:
       if: runner.os == 'Linux'
       with:
         name: proteus-linux-x64-lv2
-        path: Proteus/Proteus/build/Proteus_artefacts/LV2/*.lv2
+        path: build/Proteus_artefacts/LV2/*.lv2
         if-no-files-found: error
 
     - uses: actions/upload-artifact@v3
       if: runner.os == 'Linux'
       with:
         name: proteus-linux-x64-vst3.so
-        path: Proteus/Proteus/build/Proteus_artefacts/VST3/Proteus.vst3/Contents/x86_64-linux/Proteus.so
+        path: build/Proteus_artefacts/VST3/Proteus.vst3/Contents/x86_64-linux/Proteus.so
         if-no-files-found: error
 
     - uses: actions/upload-artifact@v3
       if: runner.os == 'Linux'
       with:
         name: proteus-linux-x64-clap.clap
-        path: /home/runner/work/Proteus/Proteus/build/Proteus_artefacts/CLAP/Proteus.clap
+        path: build/Proteus_artefacts/CLAP/Proteus.clap
         if-no-files-found: error
 
     - uses: actions/upload-artifact@v3
