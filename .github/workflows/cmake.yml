@@ -10,25 +10,24 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macOS-latest]
-    
-    steps:
-    - name: install linux deps
-      if: runner.os == 'Linux'
-      run: |
-        sudo apt update
-        sudo apt install libasound2-dev libcurl4-openssl-dev libx11-dev libxinerama-dev \
-          libxext-dev libfreetype6-dev libwebkit2gtk-4.0-dev libglu1-mesa-dev libjack-jackd2-dev lv2-dev
-    - uses: lukka/get-cmake@latest
 
+    steps:
     - uses: actions/checkout@v3
       with: { submodules: recursive }
 
-    - name: Configure
-      shell: bash
-      run: cmake -Bbuild
+    - name: install linux deps
+      uses: awalsh128/cache-apt-pkgs-action@latest
+      if: runner.os == 'Linux'
+      with:
+        packages:
+          libasound2-dev libcurl4-openssl-dev libx11-dev libxinerama-dev
+          libxext-dev libfreetype6-dev libwebkit2gtk-4.0-dev libglu1-mesa-dev
+          libjack-jackd2-dev lv2-dev
+        version: 1.0
 
-    - name: Build
-      run: cmake --build build --config Release
+    - uses: lukka/get-cmake@latest
+    - run: cmake -Bbuild
+    - run: cmake --build build --config Release
     
     # Failing validation, fix
     #- name: Validate
